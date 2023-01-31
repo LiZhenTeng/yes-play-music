@@ -1,6 +1,18 @@
 import { defineStore } from 'pinia'
 import { likeATrack } from '@/api/track';
 import { useIsAccountLoggedIn, useIsLooseLoggedIn } from '@/utils/auth';
+import { getPlaylistDetail } from '@/api/playlist';
+import { getTrackDetail } from '@/api/track';
+import {
+    userPlaylist,
+    userPlayHistory,
+    userLikedSongsIDs,
+    likedAlbums,
+    likedArtists,
+    likedMVs,
+    cloudDisk,
+    userAccount,
+} from '@/api/user';
 
 interface State {
     showLyrics: boolean
@@ -16,7 +28,7 @@ interface State {
     liked: {
         songs: Array<any>,
         songsWithDetails: [], // 只有前12首
-        playlists: [],
+        playlists: Array<any>,
         albums: [],
         artists: [],
         mvs: [],
@@ -27,6 +39,17 @@ interface State {
         },
         [key: string]: any
     }
+    modals: {
+        addTrackToPlaylistModal: {
+            show: boolean,
+            selectedTrackID: number,
+        },
+        newPlaylistModal: {
+            show: boolean,
+            afterCreateAddTrackID: number,
+        },
+        [key: string]: any
+    },
 }
 
 export const useIndexStore = defineStore('index', {
@@ -54,14 +77,49 @@ export const useIndexStore = defineStore('index', {
                 allData: [],
             },
         },
-
+        modals: {
+            addTrackToPlaylistModal: {
+                show: false,
+                selectedTrackID: 0,
+            },
+            newPlaylistModal: {
+                show: false,
+                afterCreateAddTrackID: 0,
+            },
+        },
     }),
     actions: {
-        fetchLikedSongs() {
-
+        async fetchLikedSongs() {
+            if (!useIsLooseLoggedIn()) return;
+            if (useIsAccountLoggedIn()) {
+                const { data } = await userLikedSongsIDs(this.data.user.userId)
+                if (data.ids) {
+                    this.updateLikedXXX({
+                        name: 'songs',
+                        data: data.ids,
+                    });
+                }
+            } else {
+                // TODO:搜索ID登录的用户
+            }
         },
-        fetchLikedSongsWithDetails() {
-
+        async fetchLikedSongsWithDetails() {
+            const { data } = await getPlaylistDetail(this.data.likedSongPlaylistID, true)
+            if (data.playlist?.trackIds?.length === 0) {
+                return new Promise(resolve => {
+                    resolve(false);
+                });
+            }
+            const trackDetail = await getTrackDetail(
+                data.playlist.trackIds
+                    .slice(0, 12)
+                    .map((t: { id: any; }) => t.id)
+                    .join(',')
+            )
+            this.updateLikedXXX({
+                name: 'songsWithDetails',
+                data: trackDetail.data.songs,
+            });
         },
         fetchLikedPlaylist() {
 
@@ -136,6 +194,18 @@ export const useIndexStore = defineStore('index', {
                     this.showToast('操作失败，专辑下架或版权锁定');
                 });
 
-        }
+        },
+        updateModal({ modalName, key, value }: { modalName: string, key: string, value: boolean }) {
+            this.modals[modalName][key] = value;
+            if (key === 'show') {
+                // 100ms的延迟是为等待右键菜单blur之后再disableScrolling
+                value === true
+                    ? setTimeout(() => (this.enableScrolling = false), 100)
+                    : (this.enableScrolling = true);
+            }
+        },
+        updateData({ key, value }: { key: string, value: string }) {
+            this.data[key] = value;
+        },
     }
 })

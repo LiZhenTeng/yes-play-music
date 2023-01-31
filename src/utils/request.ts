@@ -47,11 +47,8 @@ service.interceptors.request.use((config) => {
 });
 
 service.interceptors.response.use(
-    response => {
-        const res = response.data;
-        return res;
-    },
-    async error => {
+    (response) => response,
+    (error) => {
         /** @type {import('axios').AxiosResponse | null} */
         const response = error.response;
         const data = response.data;
@@ -63,10 +60,8 @@ service.interceptors.response.use(
             data.msg === '需要登录'
         ) {
             console.warn('Token has expired. Logout now!');
-
             // 登出帳戶
             useDoLogout();
-
             // 導向登入頁面
             if (process.env.IS_ELECTRON) {
                 router.push({ name: 'loginAccount' });
