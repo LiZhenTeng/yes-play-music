@@ -1,5 +1,11 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { useIsAccountLoggedIn, useIsLooseLoggedIn } from '@/utils/auth';
+import { useIsLooseLoggedIn } from '@/utils/auth';
+import { useIndexStore } from '@/store';
+import store from '@/store/store';
+import { storeToRefs } from 'pinia';
+
+const indexStore=useIndexStore(store);
+const {useIsAccountLoggedIn}=storeToRefs(indexStore);
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -140,7 +146,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   // 需要登录的逻辑
   if (to.meta.requireAccountLogin) {
-    if (useIsAccountLoggedIn()) {
+    if (useIsAccountLoggedIn) {
       next();
     } else {
       next({ path: '/login/account' });

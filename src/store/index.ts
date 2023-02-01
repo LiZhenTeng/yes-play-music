@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { likeATrack } from '@/api/track';
-import { useIsAccountLoggedIn, useIsLooseLoggedIn } from '@/utils/auth';
+import { useGetCookie } from '@/utils/common'
+import { useIsLooseLoggedIn } from '@/utils/auth';
 import { getPlaylistDetail } from '@/api/playlist';
 import { getTrackDetail } from '@/api/track';
 import {
@@ -50,6 +51,7 @@ interface State {
         },
         [key: string]: any
     },
+    dailyTracks: Array<any>
 }
 
 export const useIndexStore = defineStore('index', {
@@ -87,11 +89,18 @@ export const useIndexStore = defineStore('index', {
                 afterCreateAddTrackID: 0,
             },
         },
+        dailyTracks: []
     }),
+    getters: {
+        useIsAccountLoggedIn: (state) => {
+            return useGetCookie('MUSIC_U') !== undefined &&
+                state.data?.value?.loginMode === 'account'
+        }
+    },
     actions: {
         async fetchLikedSongs() {
             if (!useIsLooseLoggedIn()) return;
-            if (useIsAccountLoggedIn()) {
+            if (this.useIsAccountLoggedIn) {
                 const { data } = await userLikedSongsIDs(this.data.user.userId)
                 if (data.ids) {
                     this.updateLikedXXX({
@@ -104,22 +113,25 @@ export const useIndexStore = defineStore('index', {
             }
         },
         async fetchLikedSongsWithDetails() {
-            const { data } = await getPlaylistDetail(this.data.likedSongPlaylistID, true)
-            if (data.playlist?.trackIds?.length === 0) {
-                return new Promise(resolve => {
-                    resolve(false);
+            if (this.data.likedSongPlaylistID) {
+                const { data } = await getPlaylistDetail(this.data.likedSongPlaylistID, true)
+                if (data?.playlist?.trackIds?.length === 0) {
+                    return new Promise(resolve => {
+                        resolve(false);
+                    });
+                }
+                const trackDetail = await getTrackDetail(
+                    data?.playlist?.trackIds
+                        .slice(0, 12)
+                        .map((t: { id: any; }) => t.id)
+                        .join(',')
+                )
+                this.updateLikedXXX({
+                    name: 'songsWithDetails',
+                    data: trackDetail.data.songs,
                 });
+
             }
-            const trackDetail = await getTrackDetail(
-                data.playlist.trackIds
-                    .slice(0, 12)
-                    .map((t: { id: any; }) => t.id)
-                    .join(',')
-            )
-            this.updateLikedXXX({
-                name: 'songsWithDetails',
-                data: trackDetail.data.songs,
-            });
         },
         fetchLikedPlaylist() {
 
@@ -139,6 +151,9 @@ export const useIndexStore = defineStore('index', {
 
         toggleLyrics() {
 
+        },
+        updateDailyTracks(dailyTracks: Array<any>) {
+            this.dailyTracks = dailyTracks;
         },
         updateToast(toast: { show: boolean; text: string; timer: NodeJS.Timeout | null; }) {
             this.toast = toast;
@@ -167,7 +182,7 @@ export const useIndexStore = defineStore('index', {
             }
         },
         likeATrack(id: any) {
-            if (!useIsAccountLoggedIn()) {
+            if (!this.useIsAccountLoggedIn) {
                 this.showToast('此操作需要登录网易云账号');
                 return;
             }

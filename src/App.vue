@@ -15,8 +15,8 @@
       <Player v-if="enablePlayer" v-show="showPlayer" ref="player" />
     </transition>
     <Toast />
-    <ModalAddTrackToPlaylist v-if="isAccountLoggedIn" />
-    <ModalNewPlaylist v-if="isAccountLoggedIn" />
+    <ModalAddTrackToPlaylist v-if="useIsAccountLoggedIn" />
+    <ModalNewPlaylist v-if="useIsAccountLoggedIn" />
     <transition v-if="enablePlayer" name="slide-up">
       <Lyrics v-show="showLyrics" />
     </transition>
@@ -35,22 +35,19 @@ import Navbar from './components/Navbar.vue';
 import Player from './components/Player.vue';
 import Toast from './components/Toast.vue';
 import { ipcRenderer } from './electron/ipcRenderer';
-import { useIsAccountLoggedIn, useIsLooseLoggedIn } from '@/utils/auth';
+import { useIsLooseLoggedIn } from '@/utils/auth';
 import Lyrics from './views/lyrics.vue';
 
 const instance = getCurrentInstance();
 const route = useRoute();
 const indexStore = useIndexStore();
 const { fetchLikedPlaylist, fetchLikedSongs, fetchLikedSongsWithDetails, fetchCloudDisk, fetchLikedAlbums, fetchLikedArtists, fetchLikedMVs } = indexStore;
-const { showLyrics, player, enableScrolling } = storeToRefs(indexStore);
+const { showLyrics, player, enableScrolling,useIsAccountLoggedIn } = storeToRefs(indexStore);
 
 const isElectron = ref(process.env.IS_ELECTRON);
 const userSelectNone = ref(false);
 const scrollbar = ref<any>(null)
 
-const isAccountLoggedIn = computed(() => {
-  return useIsAccountLoggedIn();
-})
 const showPlayer = computed(() => {
   return (
     [
@@ -81,7 +78,7 @@ const fetchData = () => {
   fetchLikedSongs();
   fetchLikedSongsWithDetails();
   fetchLikedPlaylist();
-  if (useIsAccountLoggedIn()) {
+  if (useIsAccountLoggedIn) {
     fetchLikedAlbums();
     fetchLikedArtists();
     fetchLikedMVs();

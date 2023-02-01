@@ -2,7 +2,7 @@
     <transition name="slide-up">
         <div class="lyrics-page" :class="{ 'no-lyric': noLyric }" :data-theme="theme">
             <div v-if="
-                (settings.lyricsBackground === 'blur') |
+                (settings.lyricsBackground === 'blur') ||
                 (settings.lyricsBackground === 'dynamic')
             " class="lyrics-background" :class="{
     'dynamic-background': settings.lyricsBackground === 'dynamic',
@@ -133,7 +133,7 @@
                                 <br />
                                 <span v-if="
                                     line.contents[1] &&
-                                    $store.state.settings.showLyricsTranslation
+                                    settings.showLyricsTranslation
                                 " class="translation">{{ line.contents[1] }}</span>
                             </div>
                         </div>
@@ -150,16 +150,293 @@
 
 </template>
 <script lang="ts" setup>
-import { formatTrackTime } from '@/utils/common';
+import { useFormatTrackTime } from '@/utils/common';
 import { getLyric } from '@/api/track';
 import { lyricParser } from '@/utils/lyrics';
 import ButtonIcon from '@/components/ButtonIcon.vue';
 import * as Vibrant from 'node-vibrant/dist/vibrant.worker.min.js';
 import Color from 'color';
-import { useIsAccountLoggedIn } from '@/utils/auth';
 import { useHasListSource, useGetListSourcePath } from '@/utils/playList';
-import locale from '@/locale';
+import { useI18n } from 'vue-i18n';
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
+import { useIndexStore } from '@/store';
+import { storeToRefs } from 'pinia';
 
+const { t } = useI18n();
+const indexStore = useIndexStore();
+const { toggleLyrics, likeATrack, updateModal, showToast, fetchLikedPlaylist } = indexStore;
+const { player, settings, showLyrics, enableScrolling, useIsAccountLoggedIn } = storeToRefs(indexStore);
+
+const lyricsInterval = ref<NodeJS.Timer | null>(null);
+const lyric = reactive<Array<any>>([]);
+const tlyric = reactive(new Array());
+const highlightLyricIndex = ref(-1);
+const minimize = ref(true);
+const background = ref('');
+const formatTime = (value: Date) => {
+    let hour = value.getHours().toString();
+    let minute = value.getMinutes().toString();
+    let second = value.getSeconds().toString();
+    return (
+        hour.padStart(2, '0') +
+        ':' +
+        minute.padStart(2, '0') +
+        ':' +
+        second.padStart(2, '0')
+    );
+};
+const date = ref(formatTime(new Date()));
+const timer = ref<NodeJS.Timer | null>(null);
+
+const currentTrack = computed(() => {
+    return player.value?.currentTrack;
+})
+const volume = computed({
+    get() {
+        return player.value?.volume;
+    },
+    set(value) {
+        player.value.volume = value;
+    }
+})
+const imageUrl = computed(() => {
+    return player.value?.currentTrack?.al?.picUrl + '?param=1024y1024';
+})
+const bgImageUrl = computed(() => {
+    return player.value?.currentTrack?.al?.picUrl + '?param=512y512';
+})
+const lyricWithTranslation = computed(() => {
+    let ret = new Array();
+    // 空内容的去除
+    const lyricFiltered = lyric.filter(({ content }) =>
+        Boolean(content)
+    );
+    // content统一转换数组形式
+    if (lyricFiltered.length) {
+        lyricFiltered.forEach(l => {
+            const { rawTime, time, content } = l;
+            const lyricItem = { time, content, contents: [content] };
+            const sameTimeTLyric = tlyric.find(
+                ({ rawTime: tLyricRawTime }) => tLyricRawTime === rawTime
+            );
+            if (sameTimeTLyric) {
+                const { content: tLyricContent } = sameTimeTLyric;
+                if (content) {
+                    lyricItem.contents.push(tLyricContent);
+                }
+            }
+            ret.push(lyricItem);
+        });
+    } else {
+        ret = lyricFiltered.map(({ time, content }) => ({
+            time,
+            content,
+            contents: [content],
+        }));
+    }
+    return ret;
+})
+
+const lyricFontSize = computed(() => {
+    return {
+        fontSize: `${settings.value?.lyricFontSize || 28}px`,
+    };
+})
+
+const noLyric = computed(() => {
+    return lyric.length == 0;
+})
+
+const artist = computed(() => {
+    return currentTrack.value?.ar
+        ? currentTrack.value?.ar[0]
+        : { id: 0, name: 'unknown' };
+})
+
+const album = computed(() => {
+    return currentTrack.value?.al || { id: 0, name: 'unknown' };
+})
+
+const theme = computed(() => {
+    return settings.value?.lyricsBackground === true ? 'dark' : 'auto';
+})
+
+const initDate = () => {
+    if (timer.value)
+        clearInterval(timer.value);
+    timer.value = setInterval(function () {
+        date.value = formatTime(new Date());
+    }, 1000);
+};
+
+const addToPlaylist = () => {
+    if (!useIsAccountLoggedIn) {
+        showToast(t('toast.needToLogin'));
+        return;
+    }
+    fetchLikedPlaylist();
+    updateModal({
+        modalName: 'addTrackToPlaylistModal',
+        key: 'show',
+        value: true,
+    });
+    updateModal({
+        modalName: 'addTrackToPlaylistModal',
+        key: 'selectedTrackID',
+        value: currentTrack.value?.id,
+    });
+}
+const playPrevTrack = () => {
+    player.value?.playPrevTrack();
+}
+const playOrPause = () => {
+    player.value?.playOrPause();
+}
+const playNextTrack = () => {
+    if (player.value?.isPersonalFM) {
+        player.value?.playNextFMTrack();
+    } else {
+        player.value?.playNextTrack();
+    }
+}
+const getLyricVoid = () => {
+    if (!currentTrack.value?.id) return;
+    return getLyric(currentTrack.value?.id).then((data: any) => {
+        if (!data?.lrc?.lyric) {
+            lyric.length = 0;
+            tlyric.length = 0;
+            return false;
+        } else {
+            const lyricParserData = lyricParser(data);
+            lyricParserData.lyric = lyricParserData.lyric.filter(
+                l => !/^作(词|曲)\s*(:|：)\s*无$/.exec(l.content)
+            );
+            let includeAM =
+                lyricParserData.lyric.length <= 10 &&
+                lyricParserData.lyric.map(l => l.content).includes('纯音乐，请欣赏');
+            if (includeAM) {
+                let reg = /^作(词|曲)\s*(:|：)\s*/;
+                let author = currentTrack.value?.ar[0]?.name;
+                lyricParserData.lyric = lyric.filter(l => {
+                    let regExpArr = l.content.match(reg);
+                    return (
+                        !regExpArr || l.content.replace(regExpArr[0], '') !== author
+                    );
+                });
+            }
+            if (lyricParserData.lyric.length === 1 && includeAM) {
+                lyric.length = 0;
+                tlyric.length = 0;
+                return false;
+            } else {
+                lyric.length = 0;
+                tlyric.length = 0;
+                lyric.push(...lyricParserData.lyric);
+                tlyric.push(...lyricParserData.tlyric);
+                return true;
+            }
+        }
+    });
+}
+const formatTrackTime = (value: number) => {
+    return useFormatTrackTime(value);
+}
+const clickLyricLine = (value: any, startPlay = false) => {
+    // TODO: 双击选择还会选中文字，考虑搞个右键菜单复制歌词
+    let jumpFlag = false;
+    lyric.filter(function (item: { content: string; }) {
+        if (item.content == '纯音乐，请欣赏') {
+            jumpFlag = true;
+        }
+    });
+    if (window?.getSelection()?.toString().length === 0 && !jumpFlag) {
+        player.value?.seek(value);
+    }
+    if (startPlay === true) {
+        player.value?.play();
+    }
+}
+const setLyricsInterval = () => {
+    lyricsInterval.value = setInterval(() => {
+        const progress = player.value?.seek() ?? 0;
+        let oldHighlightLyricIndex = highlightLyricIndex.value;
+        highlightLyricIndex.value = lyric.findIndex((l: { time: number; }, index: number) => {
+            const nextLyric = lyric[index + 1];
+            return (
+                progress >= l.time && (nextLyric ? progress < nextLyric.time : true)
+            );
+        });
+        if (oldHighlightLyricIndex !== highlightLyricIndex.value) {
+            const el = document.getElementById(`line${highlightLyricIndex.value}`);
+            if (el)
+                el.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+        }
+    }, 50);
+}
+const moveToFMTrash = () => {
+    player.value?.moveToFMTrash();
+}
+const switchRepeatMode = () => {
+    player.value?.switchRepeatMode();
+}
+const switchShuffle = () => {
+    player.value?.switchShuffle();
+}
+const getCoverColor = () => {
+    if (settings.value?.lyricsBackground !== true) return;
+    const cover = currentTrack.value?.al?.picUrl + '?param=256y256';
+    Vibrant.from(cover, { colorCount: 1 })
+        .getPalette()
+        .then((palette: { DarkMuted: { _rgb: any; }; }) => {
+            const originColor = Color.rgb(palette.DarkMuted._rgb);
+            const color = originColor.darken(0.1).rgb().string();
+            const color2 = originColor.lighten(0.28).rotate(-30).rgb().string();
+            background.value = `linear-gradient(to top left, ${color}, ${color2})`;
+        });
+}
+const hasList = () => {
+    return useHasListSource();
+};
+const getListPath = () => {
+    return useGetListSourcePath();
+}
+const mute = () => {
+    player.value?.mute();
+}
+
+watch(currentTrack, () => {
+    getLyricVoid();
+    getCoverColor();
+})
+
+watch(showLyrics, (show) => {
+    if (show) {
+        setLyricsInterval();
+        enableScrolling.value = false;
+    } else {
+        if (lyricsInterval.value)
+            clearInterval(lyricsInterval.value);
+        enableScrolling.value = true;
+    }
+})
+
+onMounted(() => {
+    getLyricVoid();
+    getCoverColor();
+    initDate();
+})
+onBeforeUnmount(() => {
+    if (timer.value) {
+        clearInterval(timer.value);
+    }
+})
+onUnmounted(() => {
+    if (lyricsInterval.value)
+        clearInterval(lyricsInterval.value);
+})
 </script>
 
 <style lang="scss" scoped>

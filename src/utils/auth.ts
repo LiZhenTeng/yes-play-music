@@ -5,7 +5,7 @@ import { logout } from '@/api/auth';
 import { useGetCookie, useRemoveCookie } from '@/utils/common'
 
 const indexStore = useIndexStore(store);
-const { data } = storeToRefs(indexStore);
+const { data,useIsAccountLoggedIn } = storeToRefs(indexStore);
 
 
 export const isTrackPlayable = (track: any) => {
@@ -60,13 +60,6 @@ export const useMapTrackPlayableStatus = (tracks: Array<any>, privileges = new A
         return t;
     });
 }
-// 账号登录
-export const useIsAccountLoggedIn = () => {
-    return (
-        useGetCookie('MUSIC_U') !== undefined &&
-        data.value?.loginMode === 'account'
-    );
-}
 
 // 用户名搜索（用户数据为只读）
 export const useIsUsernameLoggedIn = () => {
@@ -75,7 +68,7 @@ export const useIsUsernameLoggedIn = () => {
 
 // 账户登录或者用户名搜索都判断为登录，宽松检查
 export const useIsLooseLoggedIn = () => {
-    return useIsAccountLoggedIn() || useIsUsernameLoggedIn();
+    return useIsAccountLoggedIn || useIsUsernameLoggedIn();
 }
 export const useDoLogout = () => {
     logout();

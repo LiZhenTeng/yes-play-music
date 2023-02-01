@@ -22,7 +22,7 @@ const service = axios.create({
 });
 
 service.interceptors.request.use((config) => {
-    if (!config.params) config.params = {};
+    /* if (!config.params) config.params = {};
     if (baseURL.length) {
         if (baseURL[0] !== '/' && !process.env.IS_ELECTRON) {
             config.params.cookie = `MUSIC_U=${useGetCookie('MUSIC_U')};`;
@@ -42,7 +42,7 @@ service.interceptors.request.use((config) => {
     const proxy = JSON.parse(localStorage.getItem('settings') || '{}').proxyConfig;
     if (['HTTP', 'HTTPS'].includes(proxy.protocol)) {
         config.params.proxy = `${proxy.protocol}://${proxy.server}:${proxy.port}`;
-    }
+    } */
 
     return config;
 });
