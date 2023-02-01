@@ -21,9 +21,10 @@ import { reactive, computed } from 'vue';
 import { useIndexStore } from '@/store/index'
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
-import { useResizeImage } from '@/utils/common'
+/* import { useResizeImage } from '@/utils/common' */
 import { addOrRemoveTrackFromPlaylist } from '@/api/playlist';
 
+const useResizeImage=(a:string,b:number)=>'';
 const { t } = useI18n();
 const indexStore = useIndexStore();
 const { updateModal, showToast } = indexStore;

@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { useMapTrackPlayableStatus } from '@/utils/common';
+import { useMapTrackPlayableStatus } from '@/utils/auth';
 import {
   cacheTrackDetail,
   getTrackDetailFromCache,
@@ -14,7 +14,7 @@ import {
  * 说明 : 调用此接口 , 传入音乐 id 可获得对应音乐的歌词 ( 不需要登录 )
  * @param {number} id - 音乐 id
  */
-export function getLyric(id: number) {
+export const getLyric = (id: number) => {
   const fetchLatest = () => {
     return request({
       url: '/lyric',
@@ -80,7 +80,7 @@ export const getTrackDetail = (ids: string) => {
  * @param {number} params.id
  * @param {boolean=} [params.like]
  */
-export function likeATrack(params: { id: number, like: boolean, timestamp?: number }) {
+export const likeATrack = (params: { id: number, like: boolean, timestamp?: number }) => {
   params.timestamp = new Date().getTime();
   return request({
     url: '/like',

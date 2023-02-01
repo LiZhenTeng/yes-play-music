@@ -1,12 +1,6 @@
 import axios from 'axios';
 import Dexie from 'dexie';
-import store from '@/store/store';
 // import pkg from "../../package.json";
-import { useIndexStore } from '@/store';
-import { storeToRefs } from 'pinia';
-
-const indexStore = useIndexStore(store);
-const { settings, } = storeToRefs(indexStore);
 
 const db: any = new Dexie('yesplaymusic');
 
@@ -35,13 +29,14 @@ db.version(1).stores({
 
 let tracksCacheBytes = 0;
 
-async function deleteExcessCache() {
-    if (
+const deleteExcessCache = async () => {
+    //缓存配置
+    /* if (
         settings.value?.cacheLimit === false ||
         tracksCacheBytes < settings.value?.cacheLimit * Math.pow(1024, 2)
     ) {
         return;
-    }
+    } */
     try {
         const delCache = await db.trackSources.orderBy('createTime').first();
         await db.trackSources.delete(delCache.id);
@@ -55,7 +50,7 @@ async function deleteExcessCache() {
     }
 }
 
-export function cacheTrackSource(trackInfo: { name: any; ar: { name: any; }[]; artists: { name: any; }[]; al: { picUrl: any; }; id: any; }, url: string, bitRate: any, from = 'netease') {
+export const cacheTrackSource = (trackInfo: { name: any; ar: { name: any; }[]; artists: { name: any; }[]; al: { picUrl: any; }; id: any; }, url: string, bitRate: any, from = 'netease') => {
     if (!process.env.IS_ELECTRON) return;
     const name = trackInfo.name;
     const artist =
@@ -90,7 +85,7 @@ export function cacheTrackSource(trackInfo: { name: any; ar: { name: any; }[]; a
         });
 }
 
-export function getTrackSource(id: any) {
+export const getTrackSource = (id: any) => {
     return db.trackSources.get(Number(id)).then((track: { name: any; artist: any; }) => {
         if (!track) return null;
         console.debug(
@@ -100,7 +95,7 @@ export function getTrackSource(id: any) {
     });
 }
 
-export function cacheTrackDetail(track: { id: any; }, privileges: any) {
+export const cacheTrackDetail = (track: { id: any; }, privileges: any) => {
     db.trackDetail.put({
         id: track.id,
         detail: track,
@@ -109,7 +104,7 @@ export function cacheTrackDetail(track: { id: any; }, privileges: any) {
     });
 }
 
-export function getTrackDetailFromCache(ids: string[]) {
+export const getTrackDetailFromCache = (ids: string[]) => {
     return db.trackDetail
         .filter((track: { id: any; }) => {
             return ids.includes(String(track.id));
@@ -129,7 +124,7 @@ export function getTrackDetailFromCache(ids: string[]) {
         });
 }
 
-export function cacheLyric(id: any, lyrics: any) {
+export const cacheLyric = (id: any, lyrics: any) => {
     db.lyric.put({
         id,
         lyrics,
@@ -137,14 +132,14 @@ export function cacheLyric(id: any, lyrics: any) {
     });
 }
 
-export function getLyricFromCache(id: any) {
+export const getLyricFromCache = (id: any) => {
     return db.lyric.get(Number(id)).then((result: { lyrics: any; }) => {
         if (!result) return undefined;
         return result.lyrics;
     });
 }
 
-export function cacheAlbum(id: any, album: any) {
+export const cacheAlbum = (id: any, album: any) => {
     db.album.put({
         id: Number(id),
         album,
@@ -152,14 +147,14 @@ export function cacheAlbum(id: any, album: any) {
     });
 }
 
-export function getAlbumFromCache(id: any) {
+export const getAlbumFromCache = (id: any) => {
     return db.album.get(Number(id)).then((result: { album: any; }) => {
         if (!result) return undefined;
         return result.album;
     });
 }
 
-export function countDBSize() {
+export const countDBSize = () => {
     const trackSizes: any[] = [];
     return db.trackSources
         .each((track: { source: { byteLength: any; }; }) => {
@@ -178,9 +173,9 @@ export function countDBSize() {
         });
 }
 
-export function clearDB() {
+export const clearDB = () => {
     return new Promise(resolve => {
-        db.tables.forEach(function (table: { clear: () => void; }) {
+        db.tables.forEach((table: { clear: () => void; }) => {
             table.clear();
         });
         resolve(false);

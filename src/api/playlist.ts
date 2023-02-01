@@ -1,5 +1,5 @@
+import { useMapTrackPlayableStatus } from '@/utils/auth';
 import request from '@/utils/request';
-import { useMapTrackPlayableStatus } from '@/utils/common';
 
 /**
  * 获取歌单详情

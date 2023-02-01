@@ -105,8 +105,9 @@ import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useResizeImage } from '@/utils/common'
+/* import { useResizeImage } from '@/utils/common' */
 
+const useResizeImage=(a:string,b:number)=>'';
 const route = useRoute();
 const router = useRouter();
 const indexStore = useIndexStore();

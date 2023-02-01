@@ -1,12 +1,12 @@
-import { useIsAccountLoggedIn } from './auth';
-import { storeToRefs } from 'pinia';
-import { useIndexStore } from '@/store';
-import store from '@/store/store'
+import Cookies from 'js-cookie'
 
-const indexStore = useIndexStore(store);
-
-const { data } = storeToRefs(indexStore)
-
+export const useGetCookie = (key: string) => {
+    return Cookies.get(key) ?? localStorage.getItem(`cookie-${key}`);
+}
+export const useRemoveCookie = (key: string) => {
+    Cookies.remove(key);
+    localStorage.removeItem(`cookie-${key}`);
+}
 export const useResizeImage = (imgUrl: string, size = 512) => {
     if (!imgUrl) return '';
     let httpsImgUrl = imgUrl;
@@ -16,55 +16,6 @@ export const useResizeImage = (imgUrl: string, size = 512) => {
     return `${httpsImgUrl}?param=${size}y${size}`;
 }
 
-export const isTrackPlayable = (track: any) => {
-    let result = {
-        playable: true,
-        reason: '',
-    };
-    if (track?.privilege?.pl > 0) {
-        return result;
-    }
-    // cloud storage judgement logic
-    if (useIsAccountLoggedIn() && track?.privilege?.cs) {
-        return result;
-    }
-    if (track.fee === 1 || track.privilege?.fee === 1) {
-        if (useIsAccountLoggedIn() && data.value?.user.vipType === 11) {
-            result.playable = true;
-        } else {
-            result.playable = false;
-            result.reason = 'VIP Only';
-        }
-    } else if (track.fee === 4 || track.privilege?.fee === 4) {
-        result.playable = false;
-        result.reason = '付费专辑';
-    } else if (
-        track.noCopyrightRcmd !== null &&
-        track.noCopyrightRcmd !== undefined
-    ) {
-        result.playable = false;
-        result.reason = '无版权';
-    } else if (track.privilege?.st < 0 && useIsAccountLoggedIn()) {
-        result.playable = false;
-        result.reason = '已下架';
-    }
-    return result;
-}
-export const useMapTrackPlayableStatus = (tracks: Array<any>, privileges = new Array<any>()) => {
-    if (tracks?.length === undefined) return tracks;
-    return tracks.map(t => {
-        const privilege = privileges.find(item => item.id === t.id) || {};
-        if (t.privilege) {
-            Object.assign(t.privilege, privilege);
-        } else {
-            t.privilege = privilege;
-        }
-        let result = isTrackPlayable(t);
-        t.playable = result.playable;
-        t.reason = result.reason;
-        return t;
-    });
-}
 
 export const formatTrackTime = (value: number) => {
     if (!value) return '';

@@ -1,4 +1,4 @@
-export function lyricParser(lrc: { lrc: { lyric: any; }; tlyric: { lyric: any; }; lyricUser: any; transUser: any; }) {
+export const lyricParser = (lrc: { lrc: { lyric: any; }; tlyric: { lyric: any; }; lyricUser: any; transUser: any; }) => {
     return {
         lyric: parseLyric(lrc?.lrc?.lyric || ''),
         tlyric: parseLyric(lrc?.tlyric?.lyric || ''),
@@ -24,7 +24,7 @@ const extractTimestampRegex =
  * @returns {ParsedLyric[]} The parsed lyric.
  * @example parseLyric("[00:00.00] Hello, World!\n[00:00.10] Test\n");
  */
-function parseLyric(lrc: string) {
+const parseLyric = (lrc: string) => {
     /**
      * A sorted list of parsed lyric and its timestamp.
      *
@@ -79,7 +79,7 @@ function parseLyric(lrc: string) {
  * @param {string} content
  * @returns {string}
  */
-function trimContent(content: string) {
+const trimContent = (content: string) => {
     let t = content.trim();
     return t.length < 1 ? content : t;
 }

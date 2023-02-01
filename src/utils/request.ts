@@ -1,5 +1,6 @@
 import router from '@/router';
-import { useDoLogout, useGetCookie } from '@/utils/auth';
+import { useDoLogout } from '@/utils/auth';
+import { useGetCookie } from '@/utils/common';
 import axios from 'axios';
 
 let baseURL = '';

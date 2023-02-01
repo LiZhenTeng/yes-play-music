@@ -16,7 +16,7 @@ export const useHasListSource = () => {
     return !player.value?.isPersonalFM && player.value.playlistSource.id !== 0;
 }
 
-export function useGetListSourcePath() {
+export const useGetListSourcePath = () => {
     if (player.value.playlistSource.id === data.value?.likedSongPlaylistID) {
         return '/library/liked-songs';
     } else if (player.value?.playlistSource.type === 'url') {
