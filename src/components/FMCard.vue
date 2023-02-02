@@ -33,7 +33,7 @@ import ButtonIcon from '@/components/ButtonIcon.vue';
 import ArtistsInLine from '@/components/ArtistsInLine.vue';
 import { useResizeImage } from '@/utils/common'
 import * as Vibrant from 'node-vibrant/dist/vibrant.worker.min.js';
-import Color from 'color';
+import { rgb } from 'color';
 import { ref, computed, watch, onMounted } from 'vue';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
@@ -81,11 +81,11 @@ const getColor = () => {
     Vibrant.from(cover, { colorCount: 1 })
         .getPalette()
         .then((palette: any) => {
-            const color = Color.rgb(palette.Vibrant._rgb)
+            const color = rgb(palette.Vibrant._rgb)
                 .darken(0.1)
                 .rgb()
                 .string();
-            const color2 = Color.rgb(palette.Vibrant._rgb)
+            const color2 = rgb(palette.Vibrant._rgb)
                 .lighten(0.28)
                 .rotate(-30)
                 .rgb()

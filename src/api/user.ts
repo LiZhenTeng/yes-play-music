@@ -42,7 +42,7 @@ export const userAccount = () => {
  * @param {number} params.limit
  * @param {number} params.offset
  */
-export const userPlaylist = (params: { uid: number, limit: number, offset: number }) => {
+export const userPlaylist = (params: { uid: number, limit: number, offset?: number, timestamp?: number }) => {
     return request({
         url: '/user/playlist',
         method: 'get',
@@ -110,7 +110,7 @@ export const dailySignin = (type: number = 0) => {
  * @param {number} params.limit
  * @param {number} params.offset
  */
-export const likedAlbums = (params: { limit: number, offset: number }) => {
+export const likedAlbums = (params: { limit: number, offset?: number }) => {
     return request({
         url: '/album/sublist',
         method: 'get',
@@ -182,7 +182,7 @@ export const uploadSong = (file: any) => {
  * @param {number} params.limit
  * @param {number} params.offset
  */
-export const cloudDisk = (params: { limit: number, offset: number, timestamp?: number }) => {
+export const cloudDisk = (params: { limit: number, offset?: number, timestamp?: number }) => {
     params.timestamp = new Date().getTime();
     return request({
         url: '/user/cloud',

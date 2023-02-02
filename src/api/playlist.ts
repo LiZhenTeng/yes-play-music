@@ -1,4 +1,4 @@
-import { useMapTrackPlayableStatus } from '@/utils/auth';
+//import { useMapTrackPlayableStatus } from '@/utils/auth';
 import request from '@/utils/request';
 
 /**
@@ -27,10 +27,10 @@ export const dailyRecommendTracks = () => {
         method: 'get',
         params: { timestamp: new Date().getTime() },
     }).then(result => {
-        result.data.dailySongs = useMapTrackPlayableStatus(
+        /* result.data.dailySongs = useMapTrackPlayableStatus(
             result.data.dailySongs,
             result.data.privileges
-        );
+        ); */
         return result;
     });
 }
@@ -82,10 +82,10 @@ export const getPlaylistDetail = async (id: number, noCache = false) => {
         params,
     }).then(response => {
         if (response.data.playlist) {
-            response.data.playlist.tracks = useMapTrackPlayableStatus(
+            /* response.data.playlist.tracks = useMapTrackPlayableStatus(
                 response.data.playlist.tracks,
                 response.data.privileges || []
-            );
+            ); */
         }
         return response;
     });

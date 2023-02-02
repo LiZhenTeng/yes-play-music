@@ -1,6 +1,4 @@
 import { createI18n } from 'vue-i18n'
-import { useIndexStore } from '@/store';
-import store from '@/store/store'
 
 import en from './lang/en.js';
 import zhCN from './lang/zh-CN.js';

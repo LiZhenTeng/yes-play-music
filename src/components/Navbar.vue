@@ -38,11 +38,11 @@
                 <svg-icon icon-class="settings" />
                 {{ $t('library.userProfileMenu.settings') }}
             </div>
-            <div v-if="!isLooseLoggedIn" class="item" @click="toLogin">
+            <div v-if="!useIsLooseLoggedIn" class="item" @click="toLogin">
                 <svg-icon icon-class="login" />
                 {{ $t('login.login') }}
             </div>
-            <div v-if="isLooseLoggedIn" class="item" @click="logout">
+            <div v-if="() => useIsLooseLoggedIn" class="item" @click="logout">
                 <svg-icon icon-class="logout" />
                 {{ $t('library.userProfileMenu.logout') }}
             </div>
@@ -56,7 +56,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, reactive, computed, onMounted } from 'vue';
-import { useIsLooseLoggedIn, useDoLogout } from '@/utils/auth';
+import { useDoLogout } from '@/utils/auth';
 import 'vscode-codicons/dist/codicon.css';
 import Win32Titlebar from '@/components/Win32Titlebar.vue';
 import LinuxTitlebar from '@/components/LinuxTitlebar.vue';
@@ -69,20 +69,18 @@ import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
 const indexStore = useIndexStore();
-const { settings, data } = storeToRefs(indexStore);
+const { settings, data, useIsLooseLoggedIn } = storeToRefs(indexStore);
 
-const userProfileMenu=ref<any>(null);
+const userProfileMenu = ref<any>(null);
 const inputFocus = ref(false)
 const langs = reactive(['zh-CN', 'zh-TW', 'en', 'tr']);
 const keywords = ref('');
 const enableWin32Titlebar = ref(false);
 const enableLinuxTitlebar = ref(false);
 
-const isLooseLoggedIn = computed(() => {
-    return useIsLooseLoggedIn()
-})
+
 const avatarUrl = computed(() => {
-    return data.value?.user?.avatarUrl && isLooseLoggedIn.value
+    return data.value?.user?.avatarUrl && useIsLooseLoggedIn
         ? `${data.value?.user?.avatarUrl}?param=512y512`
         : 'http://s4.music.126.net/style/web2/img/default/default_avatar.jpg?param=60y60';
 })

@@ -155,7 +155,7 @@ import { getLyric } from '@/api/track';
 import { lyricParser } from '@/utils/lyrics';
 import ButtonIcon from '@/components/ButtonIcon.vue';
 import * as Vibrant from 'node-vibrant/dist/vibrant.worker.min.js';
-import Color from 'color';
+import { rgb } from 'color';
 import { useHasListSource, useGetListSourcePath } from '@/utils/playList';
 import { useI18n } from 'vue-i18n';
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
@@ -391,7 +391,7 @@ const getCoverColor = () => {
     Vibrant.from(cover, { colorCount: 1 })
         .getPalette()
         .then((palette: { DarkMuted: { _rgb: any; }; }) => {
-            const originColor = Color.rgb(palette.DarkMuted._rgb);
+            const originColor = rgb(palette.DarkMuted._rgb);
             const color = originColor.darken(0.1).rgb().string();
             const color2 = originColor.lighten(0.28).rotate(-30).rgb().string();
             background.value = `linear-gradient(to top left, ${color}, ${color2})`;

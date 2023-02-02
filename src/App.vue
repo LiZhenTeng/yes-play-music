@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'user-select-none': userSelectNone }">
+  <div id="app" :class="{ 'user-select-none': userSelectNone }">
     <Scrollbar @user-select-none="(e: boolean) => { userSelectNone = e }" v-show="!showLyrics" ref="scrollbar" />
     <Navbar v-show="showNavbar" ref="navbar" />
     <main ref="main" :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }" @scroll="handleScroll">
@@ -35,14 +35,13 @@ import Navbar from './components/Navbar.vue';
 import Player from './components/Player.vue';
 import Toast from './components/Toast.vue';
 import { ipcRenderer } from './electron/ipcRenderer';
-import { useIsLooseLoggedIn } from '@/utils/auth';
 import Lyrics from './views/lyrics.vue';
 
 const instance = getCurrentInstance();
 const route = useRoute();
 const indexStore = useIndexStore();
 const { fetchLikedPlaylist, fetchLikedSongs, fetchLikedSongsWithDetails, fetchCloudDisk, fetchLikedAlbums, fetchLikedArtists, fetchLikedMVs } = indexStore;
-const { showLyrics, player, enableScrolling,useIsAccountLoggedIn } = storeToRefs(indexStore);
+const { showLyrics, player, enableScrolling, useIsAccountLoggedIn,useIsLooseLoggedIn } = storeToRefs(indexStore);
 
 const isElectron = ref(process.env.IS_ELECTRON);
 const userSelectNone = ref(false);
@@ -74,7 +73,7 @@ const handleKeydown = (e: any) => {
   }
 }
 const fetchData = () => {
-  if (!useIsLooseLoggedIn()) return;
+  if (!useIsLooseLoggedIn) return;
   fetchLikedSongs();
   fetchLikedSongsWithDetails();
   fetchLikedPlaylist();
@@ -86,7 +85,8 @@ const fetchData = () => {
   }
 }
 const handleScroll = () => {
-  scrollbar.value?.handleScroll();
+  if (scrollbar.value?.handleScroll)
+    scrollbar.value?.handleScroll();
 }
 
 onMounted(() => {

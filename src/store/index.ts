@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { likeATrack } from '@/api/track';
 import { useGetCookie } from '@/utils/common'
-import { useIsLooseLoggedIn } from '@/utils/auth';
 import { getPlaylistDetail } from '@/api/playlist';
 import { getTrackDetail } from '@/api/track';
 import {
@@ -95,11 +94,27 @@ export const useIndexStore = defineStore('index', {
         useIsAccountLoggedIn: (state) => {
             return useGetCookie('MUSIC_U') !== undefined &&
                 state.data?.value?.loginMode === 'account'
+        },
+        useIsUsernameLoggedIn(state) {
+            // 用户名搜索（用户数据为只读）
+            return state.data.value?.loginMode === 'username';
+        },
+        useIsLooseLoggedIn() {
+            // 账户登录或者用户名搜索都判断为登录，宽松检查
+            return this.useIsAccountLoggedIn || this.useIsUsernameLoggedIn;
         }
     },
     actions: {
+        fetchUserProfile() {
+            if (!this.useIsAccountLoggedIn) return;
+            return userAccount().then(({ data }) => {
+                if (data.code === 200) {
+                    this.updateData({ key: 'user', value: data.profile });
+                }
+            });
+        },
         async fetchLikedSongs() {
-            if (!useIsLooseLoggedIn()) return;
+            if (!this.useIsLooseLoggedIn) return;
             if (this.useIsAccountLoggedIn) {
                 const { data } = await userLikedSongsIDs(this.data.user.userId)
                 if (data.ids) {
@@ -134,23 +149,104 @@ export const useIndexStore = defineStore('index', {
             }
         },
         fetchLikedPlaylist() {
-
+            if (!this.useIsLooseLoggedIn) return;
+            if (this.useIsAccountLoggedIn) {
+                return userPlaylist({
+                    uid: this.data.user?.userId,
+                    limit: 2000, // 最多只加载2000个歌单（等有用户反馈问题再修）
+                    timestamp: new Date().getTime(),
+                }).then(({ data }) => {
+                    if (data.playlist) {
+                        this.updateLikedXXX({
+                            name: 'playlists',
+                            data: data.playlist,
+                        });
+                        // 更新用户”喜欢的歌曲“歌单ID
+                        this.updateData({
+                            key: 'likedSongPlaylistID',
+                            value: data.playlist[0].id,
+                        });
+                    }
+                });
+            } else {
+                // TODO:搜索ID登录的用户
+                return;
+            }
         },
         fetchLikedAlbums() {
-
+            if (!this.useIsAccountLoggedIn) return;
+            return likedAlbums({ limit: 2000 }).then(result => {
+                if (result.data) {
+                    this.updateLikedXXX({
+                        name: 'albums',
+                        data: result.data,
+                    });
+                }
+            });
         },
         fetchLikedArtists() {
+            if (!this.useIsAccountLoggedIn) return;
+            return likedArtists({ limit: 2000 }).then(result => {
+                if (result.data) {
+                    this.updateLikedXXX({
+                        name: 'artists',
+                        data: result.data,
+                    });
+                }
+            });
 
         },
         fetchLikedMVs() {
+            if (!this.useIsAccountLoggedIn) return;
+            return likedMVs({ limit: 1000 }).then(result => {
+                if (result.data) {
+                    this.updateLikedXXX({
+                        name: 'mvs',
+                        data: result.data,
+                    });
+                }
+            });
 
         },
         fetchCloudDisk() {
-
+            if (!this.useIsAccountLoggedIn) return;
+            // FIXME: #1242
+            return cloudDisk({ limit: 1000 }).then(result => {
+                if (result.data) {
+                    this.updateLikedXXX({
+                        name: 'cloudDisk',
+                        data: result.data,
+                    });
+                }
+            });
         },
-
+        fetchPlayHistory() {
+            if (!this.useIsAccountLoggedIn) return;
+            return Promise.all([
+                userPlayHistory({ uid: this.data.user?.userId, type: 0 }),
+                userPlayHistory({ uid: this.data.user?.userId, type: 1 }),
+            ]).then(response => {
+                const result = [response[0].data, response[1].data]
+                const data = {};
+                const dataType: { [key: number | string]: any } = { 0: 'allData', 1: 'weekData' };
+                if (result[0] && result[1]) {
+                    result.forEach((v, i) => {
+                        const songData = v[i][dataType[i]].map((item: any) => {
+                            const song = item.song;
+                            song.playCount = item.playCount;
+                            return song;
+                        })
+                        Object.defineProperty(data, dataType[i], {
+                            value: songData,
+                            configurable: true,
+                            writable: true
+                        })
+                    })
+                }
+            });
+        },
         toggleLyrics() {
-
+            this.showLyrics = !this.showLyrics;
         },
         updateDailyTracks(dailyTracks: Array<any>) {
             this.dailyTracks = dailyTracks;

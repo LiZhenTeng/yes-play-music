@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { useMapTrackPlayableStatus } from '@/utils/auth';
+//import { useMapTrackPlayableStatus } from '@/utils/auth';
 import {
   cacheTrackDetail,
   getTrackDetailFromCache,
@@ -53,7 +53,7 @@ export const getTrackDetail = (ids: string) => {
         const privileges = response.data.privileges.find((t: { id: any; }) => t.id === song.id);
         cacheTrackDetail(song, privileges);
       });
-      response.data.songs = useMapTrackPlayableStatus(response.data.songs, response.data.privileges);
+      //response.data.songs = useMapTrackPlayableStatus(response.data.songs, response.data.privileges);
       return response.data;
     });
   };
@@ -65,9 +65,9 @@ export const getTrackDetail = (ids: string) => {
   }
 
   return getTrackDetailFromCache(idsInArray).then((result: { songs: any; privileges: any; }) => {
-    if (result) {
+    /* if (result) {
       result.songs = useMapTrackPlayableStatus(result.songs, result.privileges);
-    }
+    } */
     return result ?? fetchLatest();
   });
 }

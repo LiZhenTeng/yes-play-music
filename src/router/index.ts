@@ -1,11 +1,10 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { useIsLooseLoggedIn } from '@/utils/auth';
 import { useIndexStore } from '@/store';
 import store from '@/store/store';
 import { storeToRefs } from 'pinia';
 
-const indexStore=useIndexStore(store);
-const {useIsAccountLoggedIn}=storeToRefs(indexStore);
+const indexStore = useIndexStore(store);
+const { useIsAccountLoggedIn, useIsLooseLoggedIn } = storeToRefs(indexStore);
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -153,7 +152,7 @@ router.beforeEach((to, from, next) => {
     }
   }
   if (to.meta.requireLogin) {
-    if (useIsLooseLoggedIn()) {
+    if (useIsLooseLoggedIn) {
       next();
     } else {
       if (process.env.IS_ELECTRON === 'true') {

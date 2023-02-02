@@ -14,7 +14,6 @@
 </template>
 <script lang="ts" setup>
 import Modal from '@/components/Modal.vue';
-import locale from '@/locale';
 import { createPlaylist, addOrRemoveTrackFromPlaylist } from '@/api/playlist';
 import { ref, computed } from 'vue';
 import { useIndexStore } from '@/store';

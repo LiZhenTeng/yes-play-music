@@ -3,8 +3,8 @@
         @click="clickCoverToPlay ? play() : goTo()">
         <div class="cover-container">
             <div class="shade">
-                <button v-show="focus" class="play-button" :style="playButtonStyles" @click.stop="play()"><svg-icon
-                        icon-class="play" />
+                <button v-show="focus" class="play-button" :style="playButtonStyles" @click.stop="play()">
+                    <svg-icon icon-class="play" />
                 </button>
             </div>
             <img :src="imageUrl" :style="imageStyles" loading="lazy" />
@@ -77,6 +77,7 @@ const goTo = () => {
     router.push({ name: props.type, params: { id: props.id } });
 }
 
+console.log(props.coverHover)
 
 </script>
 <style lang="scss" scoped>
@@ -131,7 +132,6 @@ img {
 
     .svg-icon {
         height: 44%;
-
         margin: {
             left: 4px;
         }

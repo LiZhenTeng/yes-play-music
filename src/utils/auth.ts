@@ -2,10 +2,10 @@ import { storeToRefs } from 'pinia';
 import { useIndexStore } from '@/store';
 import store from '@/store/store';
 import { logout } from '@/api/auth';
-import { useGetCookie, useRemoveCookie } from '@/utils/common'
+import { useRemoveCookie } from '@/utils/common'
 
 const indexStore = useIndexStore(store);
-const { data,useIsAccountLoggedIn } = storeToRefs(indexStore);
+const { data, useIsAccountLoggedIn } = storeToRefs(indexStore);
 
 
 export const isTrackPlayable = (track: any) => {
@@ -17,13 +17,11 @@ export const isTrackPlayable = (track: any) => {
         return result;
     }
     // cloud storage judgement logic
-    if (useGetCookie('MUSIC_U') !== undefined &&
-        data.value?.loginMode === 'account' && track?.privilege?.cs) {
+    if (useIsAccountLoggedIn && track?.privilege?.cs) {
         return result;
     }
     if (track.fee === 1 || track.privilege?.fee === 1) {
-        if (useGetCookie('MUSIC_U') !== undefined &&
-            data.value?.loginMode === 'account' && data.value?.user.vipType === 11) {
+        if (useIsAccountLoggedIn && data.value?.user.vipType === 11) {
             result.playable = true;
         } else {
             result.playable = false;
@@ -38,8 +36,7 @@ export const isTrackPlayable = (track: any) => {
     ) {
         result.playable = false;
         result.reason = '无版权';
-    } else if (track.privilege?.st < 0 && useGetCookie('MUSIC_U') !== undefined &&
-        data.value?.loginMode === 'account') {
+    } else if (track.privilege?.st < 0 && useIsAccountLoggedIn) {
         result.playable = false;
         result.reason = '已下架';
     }
@@ -61,15 +58,7 @@ export const useMapTrackPlayableStatus = (tracks: Array<any>, privileges = new A
     });
 }
 
-// 用户名搜索（用户数据为只读）
-export const useIsUsernameLoggedIn = () => {
-    return data.value?.loginMode === 'username';
-}
 
-// 账户登录或者用户名搜索都判断为登录，宽松检查
-export const useIsLooseLoggedIn = () => {
-    return useIsAccountLoggedIn || useIsUsernameLoggedIn();
-}
 export const useDoLogout = () => {
     logout();
     useRemoveCookie('MUSIC_U');

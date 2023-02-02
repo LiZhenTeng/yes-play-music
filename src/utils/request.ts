@@ -1,6 +1,4 @@
 import router from '@/router';
-import { useDoLogout } from '@/utils/auth';
-import { useGetCookie } from '@/utils/common';
 import axios from 'axios';
 
 let baseURL = '';
@@ -61,8 +59,6 @@ service.interceptors.response.use(
             data.msg === '需要登录'
         ) {
             console.warn('Token has expired. Logout now!');
-            // 登出帳戶
-            useDoLogout();
             // 導向登入頁面
             if (process.env.IS_ELECTRON) {
                 router.push({ name: 'loginAccount' });

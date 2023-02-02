@@ -16,7 +16,6 @@
 </template>
 <script lang="ts" setup>
 import Modal from '@/components/Modal.vue';
-import locale from '@/locale';
 import { reactive, computed } from 'vue';
 import { useIndexStore } from '@/store/index'
 import { storeToRefs } from 'pinia';
