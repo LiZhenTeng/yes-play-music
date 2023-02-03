@@ -13,13 +13,52 @@ import {
     cloudDisk,
     userAccount,
 } from '@/api/user';
+import { playlistCategories } from '@/utils/staticData';
+import shortcuts from '@/utils/shortcuts';
+
 
 interface State {
     showLyrics: boolean
     enableScrolling: boolean
     player: any
-    settings: any
-    data: any
+    settings: {
+        lang: any,
+        musicLanguage: string,
+        appearance: string,
+        musicQuality: number,
+        lyricFontSize: number,
+        outputDevice: string
+        showPlaylistsByAppleMusic: boolean,
+        enableUnblockNeteaseMusic: boolean,
+        automaticallyCacheSongs: boolean,
+        cacheLimit: number,
+        enableReversedMode: boolean,
+        nyancatStyle: boolean,
+        showLyricsTranslation: boolean,
+        lyricsBackground: boolean,
+        closeAppOption: string,
+        enableDiscordRichPresence: boolean,
+        enableGlobalShortcut: boolean,
+        showLibraryDefault: boolean,
+        subTitleDefault: boolean,
+        linuxEnableCustomTitlebar: boolean,
+        enabledPlaylistCategories: Array<string>,
+        proxyConfig: {
+            protocol: string,
+            server: string,
+            port: any,
+        },
+        shortcuts: any,
+    }
+    data: {
+        user: {
+            [key: string]: any
+        },
+        likedSongPlaylistID: number | undefined,
+        lastRefreshCookieDate: number,
+        loginMode: any,
+        [key: string]: any
+    }
     toast: {
         show: boolean,
         text: string,
@@ -27,15 +66,15 @@ interface State {
     },
     liked: {
         songs: Array<any>,
-        songsWithDetails: [], // 只有前12首
+        songsWithDetails: Array<any>, // 只有前12首
         playlists: Array<any>,
-        albums: [],
-        artists: [],
-        mvs: [],
-        cloudDisk: [],
+        albums: Array<any>,
+        artists: Array<any>,
+        mvs: Array<any>,
+        cloudDisk: Array<any>,
         playHistory: {
-            weekData: [],
-            allData: [],
+            weekData: Array<any>,
+            allData: Array<any>,
         },
         [key: string]: any
     }
@@ -58,8 +97,43 @@ export const useIndexStore = defineStore('index', {
         showLyrics: false,
         enableScrolling: true,
         player: JSON.parse(localStorage.getItem('player') || '{}'),
-        settings: JSON.parse(localStorage.getItem('settings') || '{}'),
-        data: JSON.parse(localStorage.getItem('data') || '{}'),
+        settings: {
+            lang: null,
+            musicLanguage: 'all',
+            appearance: 'auto',
+            musicQuality: 320000,
+            lyricFontSize: 28,
+            outputDevice: 'default',
+            showPlaylistsByAppleMusic: true,
+            enableUnblockNeteaseMusic: true,
+            automaticallyCacheSongs: true,
+            cacheLimit: 8192,
+            enableReversedMode: false,
+            nyancatStyle: false,
+            showLyricsTranslation: true,
+            lyricsBackground: true,
+            closeAppOption: 'ask',
+            enableDiscordRichPresence: false,
+            enableGlobalShortcut: true,
+            showLibraryDefault: false,
+            subTitleDefault: false,
+            linuxEnableCustomTitlebar: false,
+            enabledPlaylistCategories: playlistCategories
+                .filter(c => c.enable)
+                .map(c => c.name),
+            proxyConfig: {
+                protocol: 'noProxy',
+                server: '',
+                port: null,
+            },
+            shortcuts: shortcuts,
+        },
+        data: {
+            user: {},
+            likedSongPlaylistID: 0,
+            lastRefreshCookieDate: 0,
+            loginMode: null,
+        },
         toast: {
             show: false,
             text: '',
@@ -95,7 +169,7 @@ export const useIndexStore = defineStore('index', {
             return useGetCookie('MUSIC_U') !== undefined &&
                 state.data?.value?.loginMode === 'account'
         },
-        useIsUsernameLoggedIn(state) {
+        useIsUsernameLoggedIn: (state) => {
             // 用户名搜索（用户数据为只读）
             return state.data.value?.loginMode === 'username';
         },
@@ -244,6 +318,17 @@ export const useIndexStore = defineStore('index', {
                     })
                 }
             });
+        },
+        togglePlaylistCategory(name: any) {
+            const index = this.settings.enabledPlaylistCategories.findIndex(
+                (c: any) => c === name
+            );
+            if (index !== -1) {
+                this.settings.enabledPlaylistCategories =
+                    this.settings.enabledPlaylistCategories.filter((c: any) => c !== name);
+            } else {
+                this.settings.enabledPlaylistCategories.push(name);
+            }
         },
         toggleLyrics() {
             this.showLyrics = !this.showLyrics;

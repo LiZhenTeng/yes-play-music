@@ -145,14 +145,14 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   // 需要登录的逻辑
   if (to.meta.requireAccountLogin) {
-    if (useIsAccountLoggedIn) {
+    if (useIsAccountLoggedIn.value) {
       next();
     } else {
       next({ path: '/login/account' });
     }
   }
   if (to.meta.requireLogin) {
-    if (useIsLooseLoggedIn) {
+    if (!!useIsLooseLoggedIn.value) {
       next();
     } else {
       if (process.env.IS_ELECTRON === 'true') {

@@ -1,10 +1,13 @@
 import { storeToRefs } from 'pinia';
 import { useIndexStore } from '@/store';
 import store from '@/store/store';
-import { logout } from '@/api/auth';
-import { useRemoveCookie } from '@/utils/common'
+import dayjs from 'dayjs';
+import { logout, refreshCookie } from '@/api/auth';
+import { useRemoveCookie } from '@/utils/common';
+import { dailySignin } from '@/api/user';
 
 const indexStore = useIndexStore(store);
+const {updateData}=indexStore;
 const { data, useIsAccountLoggedIn } = storeToRefs(indexStore);
 
 
@@ -17,11 +20,11 @@ export const isTrackPlayable = (track: any) => {
         return result;
     }
     // cloud storage judgement logic
-    if (useIsAccountLoggedIn && track?.privilege?.cs) {
+    if (useIsAccountLoggedIn.value && track?.privilege?.cs) {
         return result;
     }
     if (track.fee === 1 || track.privilege?.fee === 1) {
-        if (useIsAccountLoggedIn && data.value?.user.vipType === 11) {
+        if (useIsAccountLoggedIn.value && data.value?.user.vipType === 11) {
             result.playable = true;
         } else {
             result.playable = false;
@@ -36,7 +39,7 @@ export const isTrackPlayable = (track: any) => {
     ) {
         result.playable = false;
         result.reason = '无版权';
-    } else if (track.privilege?.st < 0 && useIsAccountLoggedIn) {
+    } else if (track.privilege?.st < 0 && useIsAccountLoggedIn.value) {
         result.playable = false;
         result.reason = '已下架';
     }
@@ -56,6 +59,28 @@ export const useMapTrackPlayableStatus = (tracks: Array<any>, privileges = new A
         t.reason = result.reason;
         return t;
     });
+}
+export const useDailyTask = () => {
+    let lastDate = data.value.lastRefreshCookieDate;
+    if (
+        useIsAccountLoggedIn.value &&
+        (lastDate === undefined || lastDate !== dayjs().date())
+    ) {
+        console.debug('[debug][common.js] execute dailyTask');
+        refreshCookie().then(() => {
+            console.debug('[debug][common.js] 刷新cookie');
+            updateData({
+                key: 'lastRefreshCookieDate',
+                value: dayjs().date(),
+            });
+        });
+        dailySignin(0).catch(() => {
+            console.debug('[debug][common.js] 手机端重复签到');
+        });
+        dailySignin(1).catch(() => {
+            console.debug('[debug][common.js] PC端重复签到');
+        });
+    }
 }
 
 

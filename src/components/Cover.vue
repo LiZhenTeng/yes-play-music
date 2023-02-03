@@ -77,8 +77,6 @@ const goTo = () => {
     router.push({ name: props.type, params: { id: props.id } });
 }
 
-console.log(props.coverHover)
-
 </script>
 <style lang="scss" scoped>
 .cover {
