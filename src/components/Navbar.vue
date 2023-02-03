@@ -56,7 +56,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, reactive, computed, onMounted } from 'vue';
-import { useDoLogout } from '@/utils/auth';
+import { useDoLogout } from '@/hooks/auth';
 import 'vscode-codicons/dist/codicon.css';
 import Win32Titlebar from '@/components/Win32Titlebar.vue';
 import LinuxTitlebar from '@/components/LinuxTitlebar.vue';

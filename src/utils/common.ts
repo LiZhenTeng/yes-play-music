@@ -51,6 +51,19 @@ export const useMapTrackPlayableStatus = (tracks: Array<any>, privileges = new A
     });
 }
 
+export const useThrottle = (fn: Function, time: number) => {
+    let isRun = false;
+    return (...arg: any) => {
+        if (isRun) return;
+        isRun = true;
+        fn.apply(this, arg);
+        setTimeout(() => {
+            isRun = false;
+        }, time);
+    };
+}
+
+
 export const useGetCookie = (key: string) => {
     return Cookies.get(key) ?? localStorage.getItem(`cookie-${key}`);
 }

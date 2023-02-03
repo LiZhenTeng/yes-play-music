@@ -11,7 +11,7 @@ import request from '@/utils/request';
  * @param {number} params.offset
  * @param {string} params.area
  */
-export const newAlbums=(params: { limit: number, offset?: number, area?: string }) =>{
+export const getNewAlbums=(params: { limit: number, offset?: number, area?: string }) =>{
     return request({
         url: '/album/new',
         method: 'get',

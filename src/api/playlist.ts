@@ -9,7 +9,7 @@ import request from '@/utils/request';
  * @param {Object} params
  * @param {number} params.limit
  */
-export const recommendPlaylist = (params: { limit?: number }) => {
+export const getRecommendPlaylist = (params: { limit?: number }) => {
     return request({
         url: '/personalized',
         method: 'get',
@@ -21,18 +21,12 @@ export const recommendPlaylist = (params: { limit?: number }) => {
  * 每日推荐歌曲
  * 说明 : 调用此接口 , 可获得每日推荐歌曲 ( 需要登录 )
  */
-export const dailyRecommendTracks = () => {
+export const getDailyRecommendTracks = () => {
     return request({
         url: '/recommend/songs',
         method: 'get',
         params: { timestamp: new Date().getTime() },
-    }).then(result => {
-        /* result.data.dailySongs = useMapTrackPlayableStatus(
-            result.data.dailySongs,
-            result.data.privileges
-        ); */
-        return result;
-    });
+    })
 }
 
 /**
@@ -41,7 +35,7 @@ export const dailyRecommendTracks = () => {
  * @param {Object} params
  * @param {number} params.limit
  */
-export const dailyRecommendPlaylist = (params: { limit?: number }) => {
+export const getDailyRecommendPlaylist = (params: { limit?: number }) => {
     return request({
         url: '/recommend/resource',
         method: 'get',
@@ -56,7 +50,7 @@ export const dailyRecommendPlaylist = (params: { limit?: number }) => {
  * 所有榜单
  * 说明 : 调用此接口,可获取所有榜单 接口地址 : /toplist
  */
-export const toplists = () => {
+export const getToplists = () => {
     return request({
         url: '/toplist',
         method: 'get',
@@ -80,15 +74,7 @@ export const getPlaylistDetail = async (id: number, noCache = false) => {
         url: '/playlist/detail',
         method: 'get',
         params,
-    }).then(response => {
-        if (response.data.playlist) {
-            /* response.data.playlist.tracks = useMapTrackPlayableStatus(
-                response.data.playlist.tracks,
-                response.data.privileges || []
-            ); */
-        }
-        return response;
-    });
+    })
 }
 
 /**

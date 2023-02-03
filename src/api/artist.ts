@@ -10,7 +10,7 @@ import request from '@/utils/request';
  * 4: 日本
  * @param {number=} type
  */
-export const toplistOfArtists = (type: any = null) => {
+export const getToplistOfArtists = (type: any = null) => {
     let params: { type?: any } = {};
     if (type) {
         params.type = type;

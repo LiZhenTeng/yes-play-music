@@ -315,7 +315,7 @@ export const useIndexStore = defineStore('index', {
                     : (this.enableScrolling = true);
             }
         },
-        updateData({ key, value }: { key: string, value: string }) {
+        updateData({ key, value }: { key: string, value: any }) {
             this.data[key] = value;
         },
     }

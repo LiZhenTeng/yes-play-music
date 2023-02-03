@@ -1,12 +1,4 @@
 import request from '@/utils/request';
-//import { useMapTrackPlayableStatus } from '@/utils/auth';
-import {
-  cacheTrackDetail,
-  getTrackDetailFromCache,
-  cacheLyric,
-  getLyricFromCache,
-} from '@/utils/db';
-
 
 
 /**
@@ -15,24 +7,13 @@ import {
  * @param {number} id - 音乐 id
  */
 export const getLyric = (id: number) => {
-  const fetchLatest = () => {
-    return request({
-      url: '/lyric',
-      method: 'get',
-      params: {
-        id,
-      },
-    }).then(result => {
-      cacheLyric(id, result);
-      return result;
-    });
-  };
-
-  fetchLatest();
-
-  return getLyricFromCache(id).then((result: any) => {
-    return result ?? fetchLatest();
-  });
+  return request({
+    url: '/lyric',
+    method: 'get',
+    params: {
+      id,
+    },
+  })
 }
 
 /**
@@ -41,35 +22,13 @@ export const getLyric = (id: number) => {
  * @param {string} ids - 音乐 id, 例如 ids=405998841,33894312
  */
 export const getTrackDetail = (ids: string) => {
-  const fetchLatest = () => {
-    return request({
-      url: '/song/detail',
-      method: 'get',
-      params: {
-        ids,
-      },
-    }).then(response => {
-      response.data.songs.map((song: { id: any; }) => {
-        const privileges = response.data.privileges.find((t: { id: any; }) => t.id === song.id);
-        cacheTrackDetail(song, privileges);
-      });
-      //response.data.songs = useMapTrackPlayableStatus(response.data.songs, response.data.privileges);
-      return response.data;
-    });
-  };
-  fetchLatest();
-
-  let idsInArray = [String(ids)];
-  if (typeof ids === 'string') {
-    idsInArray = ids.split(',');
-  }
-
-  return getTrackDetailFromCache(idsInArray).then((result: { songs: any; privileges: any; }) => {
-    /* if (result) {
-      result.songs = useMapTrackPlayableStatus(result.songs, result.privileges);
-    } */
-    return result ?? fetchLatest();
-  });
+  return request({
+    url: '/song/detail',
+    method: 'get',
+    params: {
+      ids,
+    },
+  })
 }
 /**
  * 喜欢音乐

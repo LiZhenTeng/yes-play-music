@@ -100,7 +100,7 @@
 <script lang="ts" setup>
 import '@/assets/css/slider.css';
 import ButtonIcon from '@/components/ButtonIcon.vue';
-import { useGoToListSource, useHasListSource } from '@/utils/playList';
+import { useGoToListSource, useHasListSource } from '@/hooks/playList';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';

@@ -18,7 +18,7 @@
 </template>
 <script lang="ts" setup>
 import locale from '@/locale';
-import { dailyRecommendTracks } from '@/api/playlist';
+import { getDailyRecommendTracks } from '@/api/playlist';
 import { sample } from 'lodash'
 import { computed, onMounted } from 'vue';
 import { useIndexStore } from '@/store';
@@ -35,7 +35,7 @@ const router = useRouter();
 const { t } = locale.global;
 const indexStore = useIndexStore();
 const { showToast, updateDailyTracks } = indexStore;
-const { dailyTracks, player,useIsAccountLoggedIn } = storeToRefs(indexStore);
+const { dailyTracks, player, useIsAccountLoggedIn } = storeToRefs(indexStore);
 
 const coverUrl = computed(() => {
     return `${dailyTracks.value[0]?.al.picUrl || sample(defaultCovers)
@@ -44,9 +44,9 @@ const coverUrl = computed(() => {
 
 const loadDailyTracks = () => {
     if (useIsAccountLoggedIn) return;
-    dailyRecommendTracks()
-        .then(result => {
-            updateDailyTracks(result.data.dailySongs);
+    getDailyRecommendTracks()
+        .then(({ data }) => {
+            updateDailyTracks(data.data.dailySongs);
         })
         .catch(() => { });
 }

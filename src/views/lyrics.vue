@@ -156,7 +156,7 @@ import { lyricParser } from '@/utils/lyrics';
 import ButtonIcon from '@/components/ButtonIcon.vue';
 import * as Vibrant from 'node-vibrant/dist/vibrant.worker.min.js';
 import { rgb } from 'color';
-import { useHasListSource, useGetListSourcePath } from '@/utils/playList';
+import { useHasListSource, useGetListSourcePath } from '@/hooks/playList';
 import { useI18n } from 'vue-i18n';
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
 import { useIndexStore } from '@/store';

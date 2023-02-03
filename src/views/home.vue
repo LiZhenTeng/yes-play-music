@@ -44,11 +44,11 @@
 
 </template>
 <script lang="ts" setup>
-import { toplists } from '@/api/playlist';
-import { toplistOfArtists } from '@/api/artist';
-import { newAlbums } from '@/api/album';
+import { getToplists } from '@/api/playlist';
+import { getToplistOfArtists } from '@/api/artist';
+import { getNewAlbums } from '@/api/album';
 import { baseByAppleMusic } from '@/utils/staticData';
-import { useGetRecommendPlayList } from '@/utils/playList';
+import { useGetRecommendPlayList } from '@/hooks/playList';
 import NProgress from 'nprogress';
 import CoverRow from '@/components/CoverRow.vue';
 import FMCard from '@/components/FMCard.vue';
@@ -87,11 +87,11 @@ const loadData = () => {
         NProgress.done();
         show.value = true;
     });
-    newAlbums({
+    getNewAlbums({
         area: settings.value.musicLanguage ?? 'ALL',
         limit: 10,
-    }).then(data => {
-        newReleasesAlbum.items = data.data?.albums;
+    }).then(({data}) => {
+        newReleasesAlbum.items = data?.albums;
     });
 
     const toplistOfArtistsAreaTable: { [key: string]: any } = {
@@ -101,21 +101,21 @@ const loadData = () => {
         jp: 4,
         kr: 3,
     };
-    toplistOfArtists(
+    getToplistOfArtists(
         toplistOfArtistsAreaTable[settings.value?.musicLanguage ?? 'all']
-    ).then(data => {
+    ).then(({data}) => {
         let indexs = new Array();
         while (indexs.length < 6) {
             let tmp = ~~(Math.random() * 100);
             if (!indexs.includes(tmp)) indexs.push(tmp);
         }
         recommendArtists.indexs = indexs;
-        recommendArtists.items = data.data.list.artists.filter((l: any, index: any) =>
+        recommendArtists.items = data.list.artists.filter((l: any, index: any) =>
             indexs.includes(index)
         );
     });
-    toplists().then(data => {
-        topList.items = data.data.list.filter((l: { id: any; }) =>
+    getToplists().then(({data}) => {
+        topList.items = data.list.filter((l: { id: any; }) =>
             topList.ids.includes(l.id)
         );
     });

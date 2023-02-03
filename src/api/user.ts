@@ -168,9 +168,7 @@ export const uploadSong = (file: any) => {
             'Content-Type': 'multipart/form-data',
         },
         timeout: 200000,
-    }).catch(error => {
-        alert(`上传失败，Error: ${error}`);
-    });
+    })
 }
 
 /**

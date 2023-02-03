@@ -16,12 +16,12 @@ export default defineConfig({
     process: {
       env: {
         VUE_APP_NETEASE_API_URL: 'http://cloud-music.pl-fe.cn/',
-        DEV_SERVER_PORT: 8001
+        DEV_SERVER_PORT: 5173
       }
     }
   },
   server: {
-    port: 8080,
+    port: 5173,
     proxy: {
       '^/api': {
         target: 'http://cloud-music.pl-fe.cn/',

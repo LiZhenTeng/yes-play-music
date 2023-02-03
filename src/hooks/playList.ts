@@ -3,14 +3,13 @@ import { storeToRefs } from "pinia";
 import store from '@/store/store';
 import router from "@/router";
 import {
-    recommendPlaylist,
-    dailyRecommendPlaylist,
+    getRecommendPlaylist,
+    getDailyRecommendPlaylist,
     getPlaylistDetail,
 } from '@/api/playlist';
-import { useGetCookie } from "./common";
 
 const indexStore = useIndexStore(store);
-const { player, data } = storeToRefs(indexStore);
+const { player, data,useIsAccountLoggedIn } = storeToRefs(indexStore);
 
 const specialPlaylist = [3136952023, 2829883282, 2829816518, 2829896389];
 
@@ -34,12 +33,11 @@ export const useGetListSourcePath = () => {
     }
 }
 
-export const useGetRecommendPlayList = async (limit:number, removePrivateRecommand: any) => {
-    if (useGetCookie('MUSIC_U') !== undefined &&
-        data.value?.loginMode === 'account') {
+export const useGetRecommendPlayList = async (limit: number, removePrivateRecommand: any) => {
+    if (useIsAccountLoggedIn.value) {
         const playlists = await Promise.all([
-            dailyRecommendPlaylist({}),
-            recommendPlaylist({ limit }),
+            getDailyRecommendPlaylist({limit:10}),
+            getRecommendPlaylist({ limit }),
         ]);
         let recommend = playlists[0].data?.recommend ?? [];
         if (recommend.length) {
@@ -48,7 +46,7 @@ export const useGetRecommendPlayList = async (limit:number, removePrivateRecomma
         }
         return recommend.concat(playlists[1].data?.result).slice(0, limit);
     } else {
-        const response = await recommendPlaylist({ limit });
+        const response = await getRecommendPlaylist({ limit });
         return response.data?.result;
     }
 }
