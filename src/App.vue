@@ -60,8 +60,9 @@ const showPlayer = computed(() => {
   );
 })
 const enablePlayer = computed(() => {
-  return player.value?.enabled && route.name !== 'lastfmCallback';
+  return player?.enabled && route.name !== 'lastfmCallback';
 })
+
 const showNavbar = computed(() => {
   return route.name !== 'lastfmCallback';
 })
@@ -70,7 +71,7 @@ const handleKeydown = (e: any) => {
     if (e.target.tagName === 'INPUT') return false;
     if (route.name === 'mv') return false;
     e.preventDefault();
-    player.value?.playOrPause();
+    player?.playOrPause();
   }
 }
 const fetchData = () => {

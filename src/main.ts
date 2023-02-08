@@ -9,8 +9,10 @@ import 'virtual:svg-icons-register'
 import '@/assets/css/global.scss';
 import '@/assets/css/nprogress.css';
 import { useIndexStore } from './store';
-import { storeToRefs } from 'pinia';
 import { Player } from './hooks/Player';
+import VueSlider from 'vue-slider-component'
+//import 'vue-slider-component/theme/antd.css'
+
 const indexStore = useIndexStore(store);
 
 
@@ -29,6 +31,6 @@ indexStore.player = new Proxy(p, {
 
 
 const app = createApp(App);
-app.component('SvgIcon', SvgIcon);
+app.component('SvgIcon', SvgIcon).component('VueSlider', VueSlider);
 app.use(i18n).use(store).use(router).mount('#app')
 

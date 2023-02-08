@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,7 +11,17 @@ export default defineConfig({
     createSvgIconsPlugin({
       iconDirs: [resolve(__dirname, './src/assets/icons')],
       symbolId: 'icon-[name]',
-    })
+    }),
+    /* VitePWA({
+      manifest: {
+        name: 'YesPlayMusic',
+        icons: [{
+          favicon32: 'img/icons/favicon-32x32.png'
+        }],
+        theme_color: '#ffffff00',
+        background_color: '#335eea'
+      },
+    }) */
   ],
   define: {
     process: {

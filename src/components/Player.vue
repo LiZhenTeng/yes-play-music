@@ -98,16 +98,16 @@
     </div>
 </template>
 <script lang="ts" setup>
-import '@/assets/css/slider.css';
 import ButtonIcon from '@/components/ButtonIcon.vue';
 import { useGoToListSource, useHasListSource } from '@/hooks/playList';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-/* import { useResizeImage } from '@/utils/common' */
+import '@/assets/css/slider.css';
 
-const useResizeImage=(a:string,b:number)=>'';
+import { useResizeImage } from '@/utils/common'
+
 const route = useRoute();
 const router = useRouter();
 const indexStore = useIndexStore();
