@@ -18,9 +18,11 @@ import shortcuts from '@/utils/shortcuts';
 
 
 interface State {
+    title: string,
     showLyrics: boolean
     enableScrolling: boolean
-    player: any
+    player: {[x:string]:any}
+    lastfm: any
     settings: {
         lang: any,
         musicLanguage: string,
@@ -35,7 +37,7 @@ interface State {
         enableReversedMode: boolean,
         nyancatStyle: boolean,
         showLyricsTranslation: boolean,
-        lyricsBackground: boolean,
+        lyricsBackground: any,
         closeAppOption: string,
         enableDiscordRichPresence: boolean,
         enableGlobalShortcut: boolean,
@@ -49,6 +51,8 @@ interface State {
             port: any,
         },
         shortcuts: any,
+        showLyricsTime: boolean
+        [x: string]: any
     }
     data: {
         user: {
@@ -94,9 +98,10 @@ interface State {
 
 export const useIndexStore = defineStore('index', {
     state: (): State => ({
+        title: 'YesPlayMusic',
         showLyrics: false,
         enableScrolling: true,
-        player: JSON.parse(localStorage.getItem('player') || '{}'),
+        player: {},
         settings: {
             lang: null,
             musicLanguage: 'all',
@@ -127,6 +132,7 @@ export const useIndexStore = defineStore('index', {
                 port: null,
             },
             shortcuts: shortcuts,
+            showLyricsTime: false
         },
         data: {
             user: {},
@@ -162,7 +168,8 @@ export const useIndexStore = defineStore('index', {
                 afterCreateAddTrackID: 0,
             },
         },
-        dailyTracks: []
+        dailyTracks: [],
+        lastfm: {}
     }),
     getters: {
         useIsAccountLoggedIn: (state) => {

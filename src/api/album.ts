@@ -1,5 +1,22 @@
 import request from '@/utils/request';
 
+
+/**
+ * 获取专辑内容
+ * 说明 : 调用此接口 , 传入专辑 id, 可获得专辑内容
+ * @param {number} id
+ */
+export const getAlbum = (id: number) => {
+    return request({
+        url: '/album',
+        method: 'get',
+        params: {
+            id,
+        },
+    })
+}
+
+
 /**
  * 全部新碟
  * 说明 : 登录后调用此接口 ,可获取全部新碟
@@ -11,7 +28,7 @@ import request from '@/utils/request';
  * @param {number} params.offset
  * @param {string} params.area
  */
-export const getNewAlbums=(params: { limit: number, offset?: number, area?: string }) =>{
+export const getNewAlbums = (params: { limit: number, offset?: number, area?: string }) => {
     return request({
         url: '/album/new',
         method: 'get',

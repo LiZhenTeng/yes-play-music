@@ -20,6 +20,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
+import store from '@/store/store'
 
 const props = defineProps({
     id: { type: Number, required: true },
@@ -35,7 +36,7 @@ const props = defineProps({
     radius: { type: Number, default: 12 },
 })
 
-const indexStore = useIndexStore();
+const indexStore = useIndexStore(store);
 const { player } = storeToRefs(indexStore);
 const router = useRouter();
 

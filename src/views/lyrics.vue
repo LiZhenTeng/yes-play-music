@@ -157,12 +157,12 @@ import ButtonIcon from '@/components/ButtonIcon.vue';
 import * as Vibrant from 'node-vibrant/dist/vibrant.worker.min.js';
 import { rgb } from 'color';
 import { useHasListSource, useGetListSourcePath } from '@/hooks/playList';
-import { useI18n } from 'vue-i18n';
+import locale from '@/locale';
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 
-const { t } = useI18n();
+const { t } = locale.global;
 const indexStore = useIndexStore();
 const { toggleLyrics, likeATrack, updateModal, showToast, fetchLikedPlaylist } = indexStore;
 const { player, settings, showLyrics, enableScrolling, useIsAccountLoggedIn } = storeToRefs(indexStore);

@@ -7,37 +7,39 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { ref,nextTick } from 'vue';
+import { ref, nextTick, getCurrentInstance } from 'vue';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 
+const instance = getCurrentInstance();
 const indexStore = useIndexStore();
-const { player,enableScrolling } = storeToRefs(indexStore);
+const { player, enableScrolling } = storeToRefs(indexStore);
 
 const showMenu = ref(false);
 const top = ref('0px');
-const left = ref('0px')
+const left = ref('0px');
+const menu = ref<any>(null);
 
 const setMenu = (t: number, l: number) => {
     let heightOffset = player.value.enabled ? 64 : 0;
     let largestHeight =
-        window.innerHeight - this.$refs.menu.offsetHeight - heightOffset;
-    let largestWidth = window.innerWidth - this.$refs.menu.offsetWidth - 25;
+        window.innerHeight - menu.value.offsetHeight - heightOffset;
+    let largestWidth = window.innerWidth - menu.value.offsetWidth - 25;
     if (t > largestHeight) t = largestHeight;
     if (l > largestWidth) l = largestWidth;
     top.value = t + 'px';
     left.value = l + 'px';
 }
 
- const   closeMenu=()=> {
-        showMenu.value = false;
-        if (this.$parent.closeMenu !== undefined) {
-            this.$parent.closeMenu();
-        }
-        enableScrolling.value= true;
+const closeMenu = () => {
+    showMenu.value = false;
+    if (instance?.parent?.attrs.closeMenu !== undefined) {
+        (instance.parent.attrs as any).closeMenu();
     }
+    enableScrolling.value = true;
+}
 
-const openMenu=(e:any)=> {
+const openMenu = (e: any) => {
     showMenu.value = true;
     nextTick(
         function () {
@@ -46,7 +48,7 @@ const openMenu=(e:any)=> {
         }.bind(this)
     );
     e.preventDefault();
-    enableScrolling.value=false;
+    enableScrolling.value = false;
 }
 
 </script>

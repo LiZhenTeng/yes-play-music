@@ -27,6 +27,7 @@
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
+import store from '@/store/store'
 import { useIndexStore } from '@/store'
 import ModalAddTrackToPlaylist from './components/ModalAddTrackToPlaylist.vue';
 import ModalNewPlaylist from './components/ModalNewPlaylist.vue';
@@ -39,9 +40,9 @@ import Lyrics from './views/lyrics.vue';
 
 const instance = getCurrentInstance();
 const route = useRoute();
-const indexStore = useIndexStore();
-const { fetchLikedPlaylist, fetchLikedSongs, fetchLikedSongsWithDetails, fetchCloudDisk, fetchLikedAlbums, fetchLikedArtists, fetchLikedMVs } = indexStore;
-const { showLyrics, player, enableScrolling, useIsAccountLoggedIn,useIsLooseLoggedIn } = storeToRefs(indexStore);
+const indexStore = useIndexStore(store);
+const { fetchLikedPlaylist, fetchLikedSongs, fetchLikedSongsWithDetails, fetchCloudDisk, fetchLikedAlbums, fetchLikedArtists, fetchLikedMVs,player } = indexStore;
+const { showLyrics,  enableScrolling, useIsAccountLoggedIn,useIsLooseLoggedIn } = storeToRefs(indexStore);
 
 const isElectron = ref(process.env.IS_ELECTRON);
 const userSelectNone = ref(false);
