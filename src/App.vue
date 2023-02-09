@@ -1,9 +1,7 @@
 <template>
-  <div id="app" :class="{ 'user-select-none': userSelectNone }">
     <Scrollbar @user-select-none="(e: boolean) => { userSelectNone = e }" v-show="!showLyrics" ref="scrollbar" />
     <Navbar v-show="showNavbar" ref="navbar" />
     <main ref="main" :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }" @scroll="handleScroll">
-
       <router-view v-slot="{ Component }" v-if="$route.meta.keepAlive">
         <keep-alive>
           <component :is="Component" />
@@ -20,8 +18,6 @@
     <transition v-if="enablePlayer" name="slide-up">
       <Lyrics v-show="showLyrics" />
     </transition>
-  </div>
-
 </template>
 <script lang="ts" setup>
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'

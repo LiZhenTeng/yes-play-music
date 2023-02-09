@@ -11,6 +11,7 @@ export default defineConfig({
     createSvgIconsPlugin({
       iconDirs: [resolve(__dirname, './src/assets/icons')],
       symbolId: 'icon-[name]',
+      inject:'body-first'
     }),
     /* VitePWA({
       manifest: {
