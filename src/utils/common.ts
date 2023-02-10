@@ -1,5 +1,6 @@
 import Cookies from 'js-cookie'
 import locale from '@/locale'
+import dayjs from 'dayjs'
 
 export const useRandomNum = (...arg: any[]) => {
     switch (arg.length) {
@@ -11,7 +12,14 @@ export const useRandomNum = (...arg: any[]) => {
             return 0;
     }
 }
-  
+
+export const useFormatDate = (timestamp: any, format = 'MMM D, YYYY') => {
+    if (!timestamp) return '';
+    if (locale.global.locale === 'zh-CN') format = 'YYYY年MM月DD日';
+    else if (locale.global.locale === 'zh-TW') format = 'YYYY年MM月DD日';
+    return dayjs(timestamp).format(format);
+}
+
 export const changeAppearance = (appearance: any) => {
     if (appearance === 'auto' || appearance === undefined) {
         appearance = window.matchMedia('(prefers-color-scheme: dark)').matches

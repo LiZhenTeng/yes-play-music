@@ -22,6 +22,38 @@ export const intelligencePlaylist = (params: any) => {
 
 
 /**
+ * 收藏/取消收藏歌单
+ * 说明 : 调用此接口, 传入类型和歌单 id 可收藏歌单或者取消收藏歌单
+ * - t : 类型,1:收藏,2:取消收藏
+ * - id : 歌单 id
+ * @param {Object} params
+ * @param {number} params.t
+ * @param {number} params.id
+ */
+export const subscribePlaylist = (params: { t: number, id: number, timestamp?: number }) => {
+    params.timestamp = new Date().getTime();
+    return request({
+        url: '/playlist/subscribe',
+        method: 'post',
+        params,
+    });
+}
+
+/**
+ * 删除歌单
+ * 说明 : 调用此接口 , 传入歌单id可删除歌单
+ * - id : 歌单id,可多个,用逗号隔开
+ *  * @param {number} id
+ */
+export const deletePlaylist = (id: number) => {
+    return request({
+        url: '/playlist/delete',
+        method: 'post',
+        params: { id },
+    });
+}
+
+/**
  * 推荐歌单
  * 说明 : 调用此接口 , 可获取推荐歌单
  * - limit: 取出数量 , 默认为 30 (不支持 offset)

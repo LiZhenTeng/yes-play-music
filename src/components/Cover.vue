@@ -36,7 +36,7 @@ const props = defineProps({
   radius: { type: Number, default: 12 },
 })
 
-const indexStore = useIndexStore(store);
+const indexStore = useIndexStore();
 const { player } = storeToRefs(indexStore);
 const router = useRouter();
 

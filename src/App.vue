@@ -36,7 +36,7 @@ import Lyrics from './views/lyrics.vue';
 
 const instance = getCurrentInstance();
 const route = useRoute();
-const indexStore = useIndexStore(store);
+const indexStore = useIndexStore();
 const { fetchLikedPlaylist, fetchLikedSongs, fetchLikedSongsWithDetails, fetchCloudDisk, fetchLikedAlbums, fetchLikedArtists, fetchLikedMVs,player } = indexStore;
 const { showLyrics,  enableScrolling, useIsAccountLoggedIn,useIsLooseLoggedIn } = storeToRefs(indexStore);
 
