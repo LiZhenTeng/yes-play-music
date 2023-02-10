@@ -74,7 +74,7 @@ const getSubText = (item: any) => {
     }
     return `${albumType} · ${new Date(item.publishTime).getFullYear()}`;
   }
-  if (props.subText === 'appleMusic') return 'by Apple Music';
+  if (props.subText === 'appleMusic') return 'Apple Music';
 }
 const isPrivacy = (item: any) => {
   return props.type === 'playlist' && item.privacy === 10;

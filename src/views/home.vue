@@ -1,7 +1,7 @@
 <template>
     <div v-show="show" class="home">
         <div v-if="settings.showPlaylistsByAppleMusic !== false" class="index-row first-row">
-            <div class="title"> by Apple Music </div>
+            <div class="title">Apple Music </div>
             <CoverRow :type="'playlist'" :items="byAppleMusic" sub-text="appleMusic" :image-size="1024" />
         </div>
         <div class="index-row">

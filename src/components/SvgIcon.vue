@@ -33,5 +33,8 @@ const svgClass = computed(() => {
 <style scoped>
 .svg-icon {
     fill: currentColor;
+    color: var(--color-text);
+    height: 16px;
+    width: 16px;
 }
 </style>

@@ -11,7 +11,17 @@ export const useRandomNum = (...arg: any[]) => {
             return 0;
     }
 }
-
+  
+export const changeAppearance = (appearance: any) => {
+    if (appearance === 'auto' || appearance === undefined) {
+        appearance = window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+    }
+    document.body.setAttribute('data-theme', appearance);
+    document.querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', appearance === 'dark' ? '#222' : '#fff');
+}
 export const useThrottle = (fn: Function, time: number) => {
     let isRun = false;
     return (...arg: any) => {
