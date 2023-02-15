@@ -113,7 +113,6 @@ const router = useRouter();
 const indexStore = useIndexStore();
 const { toggleLyrics, showToast, likeATrack } = indexStore;
 const { player, settings, data } = storeToRefs(indexStore);
-
 const currentTrack = computed(() => {
     return player.value?.currentTrack
 })

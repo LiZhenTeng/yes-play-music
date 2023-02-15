@@ -244,7 +244,6 @@ export class Player {
   _init() {
     this._loadSelfFromLocalStorage();
     this._howler?.volume(this.volume);
-
     if (this._enabled) {
       // 恢复当前播放歌曲
       this._replaceCurrentTrack(this.currentTrackID, false).then(() => {
@@ -547,7 +546,7 @@ export class Player {
     return this._getAudioSource(track).then((source: string) => {
       if (source) {
         let replaced = false;
-        if (track.id === this.currentTrackID) {
+        if (track.id == this.currentTrackID) {
           this._playAudioSource(source, autoplay);
           replaced = true;
         }
