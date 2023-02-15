@@ -1,10 +1,10 @@
 <template>
-    <div ref="contextMenu" class="context-menu">
-        <div v-if="showMenu" ref="menu" class="menu" tabindex="-1" :style="{ top: top, left: left }" @blur="closeMenu"
-            @click="closeMenu">
-            <slot></slot>
-        </div>
+  <div ref="contextMenu" class="context-menu">
+    <div v-if="showMenu" ref="menu" class="menu" tabindex="-1" :style="{ top: top, left: left }" @blur="closeMenu"
+      @click="closeMenu">
+      <slot></slot>
     </div>
+  </div>
 </template>
 <script lang="ts" setup>
 import { ref, nextTick, getCurrentInstance } from 'vue';
@@ -21,35 +21,37 @@ const left = ref('0px');
 const menu = ref<any>(null);
 
 const setMenu = (t: number, l: number) => {
-    let heightOffset = player.value.enabled ? 64 : 0;
-    let largestHeight =
-        window.innerHeight - menu.value.offsetHeight - heightOffset;
-    let largestWidth = window.innerWidth - menu.value.offsetWidth - 25;
-    if (t > largestHeight) t = largestHeight;
-    if (l > largestWidth) l = largestWidth;
-    top.value = t + 'px';
-    left.value = l + 'px';
+  let heightOffset = player.value.enabled ? 64 : 0;
+  let largestHeight =
+    window.innerHeight - menu.value.offsetHeight - heightOffset;
+  let largestWidth = window.innerWidth - menu.value.offsetWidth - 25;
+  if (t > largestHeight) t = largestHeight;
+  if (l > largestWidth) l = largestWidth;
+  top.value = t + 'px';
+  left.value = l + 'px';
 }
 
 const closeMenu = () => {
-    showMenu.value = false;
-    if (instance?.parent?.attrs.closeMenu !== undefined) {
-        (instance.parent.attrs as any).closeMenu();
-    }
-    enableScrolling.value = true;
+  showMenu.value = false;
+  if (instance?.parent?.attrs.closeMenu !== undefined) {
+    (instance.parent.attrs as any).closeMenu();
+  }
+  enableScrolling.value = true;
 }
 
 const openMenu = (e: any) => {
-    showMenu.value = true;
-    nextTick(
-        function () {
-            menu.value.focus();
-            setMenu(e.y, e.x);
-        }.bind(this)
-    );
-    e.preventDefault();
-    enableScrolling.value = false;
+  showMenu.value = true;
+  nextTick(
+    function () {
+      menu.value.focus();
+      setMenu(e.y, e.x);
+    }.bind(this)
+  );
+  e.preventDefault();
+  enableScrolling.value = false;
 }
+
+defineExpose({ openMenu })
 
 </script>
 <style lang="scss" scoped>
@@ -88,6 +90,7 @@ const openMenu = (e: any) => {
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
   }
+
   .menu .item:hover {
     color: var(--color-text);
   }
@@ -108,11 +111,13 @@ const openMenu = (e: any) => {
   color: var(--color-text);
   display: flex;
   align-items: center;
+
   &:hover {
     color: var(--color-primary);
     background: var(--color-primary-bg-for-transparent);
     transition: opacity 125ms ease-out, transform 125ms ease-out;
   }
+
   &:active {
     opacity: 0.75;
     transform: scale(0.95);
@@ -139,14 +144,17 @@ hr {
   align-items: center;
   color: var(--color-text);
   cursor: default;
+
   img {
     height: 38px;
     width: 38px;
     border-radius: 4px;
   }
+
   .info {
     margin-left: 10px;
   }
+
   .title {
     font-size: 16px;
     font-weight: 600;
@@ -156,6 +164,7 @@ hr {
     overflow: hidden;
     word-break: break-all;
   }
+
   .subtitle {
     font-size: 12px;
     opacity: 0.68;

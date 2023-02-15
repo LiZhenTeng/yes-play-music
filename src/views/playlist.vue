@@ -94,9 +94,10 @@
             </div>
         </div>
 
-        <TrackList :id="playlist.id" :tracks="filteredTracks" type="playlist" :extra-context-menu-item="
-            isUserOwnPlaylist ? ['removeTrackFromPlaylist'] : []
-        " />
+        <TrackList :id="playlist.id" @remove-rack="removeTrack" :tracks="filteredTracks" type="playlist"
+            :extra-context-menu-item="
+                isUserOwnPlaylist ? ['removeTrackFromPlaylist'] : []
+            " />
 
         <div class="load-more">
             <ButtonTwoTone v-show="hasMore" color="grey" :loading="loadingMore" @click.native="loadMore(100)">{{
@@ -106,7 +107,6 @@
 
         <Modal :show="showFullDescription" :close="toggleFullDescription" :show-footer="false"
             :click-outside-hide="true" title="歌单介绍">{{ playlist.description }}</Modal>
-
         <ContextMenu ref="playlistMenu">
             <!-- <div class="item">{{ $t('contextMenu.addToQueue') }}</div> -->
             <div class="item" @click="likePlaylist(true)">{{
@@ -244,7 +244,7 @@ const { player, showToast } = indexStore;
 const { data, useIsAccountLoggedIn, enableScrolling } = storeToRefs(indexStore);
 
 const show = ref(false);
-let playlist = reactive<{ [k: string]: any }>({
+const playlist = ref<{ [k: string]: any }>({
     id: 0,
     coverImgUrl: '',
     creator: {
@@ -253,7 +253,7 @@ let playlist = reactive<{ [k: string]: any }>({
     trackIds: [],
 })
 const showFullDescription = ref(false);
-let tracks = reactive(new Array());
+const tracks = ref(new Array());
 const loadingMore = ref(false);
 const hasMore = ref(false);
 const ID = ref(0);
@@ -270,16 +270,17 @@ const isLikeSongsPage = computed(() => {
     return route.name === 'likedSongs';
 })
 const specialPlaylistInfo = computed(() => {
-    return specialPlaylist[playlist.id];
+    return specialPlaylist[playlist.value.id];
 })
 const isUserOwnPlaylist = computed(() => {
     return (
-        playlist.creator.userId === data.value.user.userId &&
-        playlist.id !== data.value.likedSongPlaylistID
+        playlist.value.creator.userId === data.value.user.userId &&
+        playlist.value.id !== data.value.likedSongPlaylistID
     );
 })
 const filteredTracks = computed(() => {
-    return tracks.filter(
+    console.log(tracks)
+    return tracks.value.filter(
         track =>
             (track.name &&
                 track.name
@@ -299,10 +300,10 @@ const filteredTracks = computed(() => {
     );
 })
 const playPlaylistByID = (trackID = 'first') => {
-    let trackIDs = playlist.trackIds.map((t: any) => t.id);
+    let trackIDs = playlist.value.trackIds.map((t: any) => t.id);
     player.value.replacePlaylist(
         trackIDs,
-        playlist.id,
+        playlist.value.id,
         'playlist',
         trackID
     );
@@ -313,18 +314,18 @@ const likePlaylist = (toast = false) => {
         return;
     }
     subscribePlaylist({
-        id: playlist.id,
-        t: playlist.subscribed ? 2 : 1,
+        id: playlist.value.id,
+        t: playlist.value.subscribed ? 2 : 1,
     }).then(({ data }) => {
         if (data.code === 200) {
-            playlist.subscribed = !playlist.subscribed;
+            playlist.value.subscribed = !playlist.value.subscribed;
             if (toast === true)
                 showToast(
-                    playlist.subscribed ? '已保存到音乐库' : '已从音乐库删除'
+                    playlist.value.subscribed ? '已保存到音乐库' : '已从音乐库删除'
                 );
         }
         getPlaylistDetail(ID.value, true).then(({ data }) => {
-            playlist = data.playlist;
+            playlist.value = data.playlist;
         });
     });
 }
@@ -332,8 +333,8 @@ const loadData = (id: number, next: Function | undefined = undefined) => {
     ID.value = id;
     getPlaylistDetail(ID.value, true)
         .then(({ data }) => {
-            playlist = data.playlist;
-            tracks = data.playlist.tracks;
+            playlist.value = data.playlist;
+            tracks.value = data.playlist.tracks;
             done();
             if (next !== undefined) next();
             show.value = true;
@@ -341,14 +342,14 @@ const loadData = (id: number, next: Function | undefined = undefined) => {
             return data;
         })
         .then(() => {
-            if (playlist.trackCount > tracks.length) {
+            if (playlist.value.trackCount > tracks.value.length) {
                 loadingMore.value = true;
                 loadMore();
             }
         });
 }
 const loadMore = (loadNum = 100) => {
-    let trackIDs = playlist.trackIds.filter((t: any, index: number) => {
+    let trackIDs = playlist.value.trackIds.filter((t: any, index: number) => {
         if (
             index > lastLoadedTrackIndex.value &&
             index <= lastLoadedTrackIndex.value + loadNum
@@ -358,10 +359,10 @@ const loadMore = (loadNum = 100) => {
     });
     trackIDs = trackIDs.map((t: any) => t.id);
     getTrackDetail(trackIDs.join(',')).then(({ data }) => {
-        tracks.push(...data.songs);
+        tracks.value = data.songs;
         lastLoadedTrackIndex.value += trackIDs.length;
         loadingMore.value = false;
-        if (lastLoadedTrackIndex.value + 1 === playlist.trackIds.length) {
+        if (lastLoadedTrackIndex.value + 1 === playlist.value.trackIds.length) {
             hasMore.value = false;
         } else {
             hasMore.value = true;
@@ -376,11 +377,11 @@ const deletePlaylistFn = () => {
         showToast(locale.global.t('toast.needToLogin'));
         return;
     }
-    let confirmation = confirm(`确定要删除歌单 ${playlist.name}？`);
+    let confirmation = confirm(`确定要删除歌单 ${playlist.value.name}？`);
     if (confirmation === true) {
-        deletePlaylist(playlist.id).then(({ data }) => {
+        deletePlaylist(playlist.value.id).then(({ data }) => {
             if (data.code === 200) {
-                nativeAlert(`已删除歌单 ${playlist.name}`);
+                nativeAlert(`已删除歌单 ${playlist.value.name}`);
                 router.go(-1);
             } else {
                 nativeAlert('发生错误');
@@ -407,9 +408,8 @@ const removeTrack = (trackID: any) => {
         showToast(locale.global.t('toast.needToLogin'));
         return;
     }
-    let t = tracks.filter(t => t.id !== trackID);
-    tracks.length = 0;
-    tracks.push(...t);
+    let t = tracks.value.filter(t => t.id !== trackID);
+    tracks.value = t;
 }
 const inputDebounce = () => {
     if (debounceTimeout.value) clearTimeout(debounceTimeout.value);
