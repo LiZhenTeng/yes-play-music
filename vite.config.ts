@@ -24,6 +24,9 @@ export default defineConfig({
       },
     }) */
   ],
+  build:{
+    
+  },
   define: {
     process: {
       env: {
@@ -40,7 +43,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '^/api': {
-        target: 'http://cloud-music.pl-fe.cn/',
+        target: process.env.VUE_APP_NETEASE_API_URL,
         changeOrigin: true,
         rewrite: (path) => path.replace('/^\/api/', '')
       }

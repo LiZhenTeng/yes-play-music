@@ -10,7 +10,6 @@ import '@/assets/css/nprogress.css';
 import { useIndexStore } from './store';
 import { Player } from './hooks/Player';
 import VueSlider from 'vue-slider-component'
-//import 'vue-slider-component/theme/antd.css'
 
 const indexStore = useIndexStore(store);
 
