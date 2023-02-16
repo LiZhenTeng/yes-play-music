@@ -4,7 +4,7 @@
             nyancat: settings.nyancatStyle,
             'nyancat-stop': settings.nyancatStyle && !player.playing,
         }" @click.stop>
-            <vue-slider v-model="player.progress" :min="0" :max="player.currentTrackDuration" :interval="1"
+            <vue-slider v-model="progress" :min="0" :max="player.currentTrackDuration" :step="1"
                 :drag-on-click="true" :duration="0" :dot-size="12" :height="2" :tooltip-formatter="formatTrackTime"
                 :lazy="true" :silent="true"></vue-slider>
         </div>
@@ -102,17 +102,17 @@ import ButtonIcon from '@/components/ButtonIcon.vue';
 import { useGoToListSource, useHasListSource } from '@/hooks/playList';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import '@/assets/css/slider.css';
-
 import { useResizeImage } from '@/utils/common'
 
 const route = useRoute();
 const router = useRouter();
 const indexStore = useIndexStore();
 const { toggleLyrics, showToast, likeATrack } = indexStore;
-const { player, settings, data } = storeToRefs(indexStore);
+const { player, settings, progress } = storeToRefs(indexStore);
+
 const currentTrack = computed(() => {
     return player.value?.currentTrack
 })
@@ -187,6 +187,7 @@ const switchReversed = () => {
 const mute = () => {
     player.value?.mute();
 }
+
 </script>
 <style lang="scss" scoped>
 .player {

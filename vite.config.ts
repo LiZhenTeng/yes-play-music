@@ -25,7 +25,9 @@ export default defineConfig({
     }) */
   ],
   build: {
-
+    rollupOptions:{
+      external:['vue-slider-component','vue']
+    }
   },
   define: {
     process: {

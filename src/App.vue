@@ -1,23 +1,23 @@
 <template>
-    <Scrollbar @user-select-none="(e: boolean) => { userSelectNone = e }" v-show="!showLyrics" ref="scrollbar" />
-    <Navbar v-show="showNavbar" ref="navbar" />
-    <main ref="main" :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }" @scroll="handleScroll">
-      <router-view v-slot="{ Component }" v-if="$route.meta.keepAlive">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </router-view>
-      <router-view v-if="!$route.meta.keepAlive"></router-view>
-    </main>
-    <transition name="slide-up">
-      <Player v-if="enablePlayer" v-show="showPlayer" ref="player" />
-    </transition>
-    <Toast />
-    <ModalAddTrackToPlaylist v-if="useIsAccountLoggedIn" />
-    <ModalNewPlaylist v-if="useIsAccountLoggedIn" />
-    <transition v-if="enablePlayer" name="slide-up">
-      <Lyrics v-show="showLyrics" />
-    </transition>
+  <Scrollbar @user-select-none="(e: boolean) => { userSelectNone = e }" v-show="!showLyrics" ref="scrollbar" />
+  <Navbar v-show="showNavbar" ref="navbar" />
+  <main ref="main" :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }" @scroll="handleScroll">
+    <router-view v-slot="{ Component }" v-if="$route.meta.keepAlive">
+      <keep-alive>
+        <component :is="Component" />
+      </keep-alive>
+    </router-view>
+    <router-view v-if="!$route.meta.keepAlive"></router-view>
+  </main>
+  <transition name="slide-up">
+    <Player v-if="enablePlayer" v-show="showPlayer" ref="player" />
+  </transition>
+  <Toast />
+  <ModalAddTrackToPlaylist v-if="useIsAccountLoggedIn" />
+  <ModalNewPlaylist v-if="useIsAccountLoggedIn" />
+  <transition v-if="enablePlayer" name="slide-up">
+    <Lyrics v-show="showLyrics" />
+  </transition>
 </template>
 <script lang="ts" setup>
 import { ref, computed, getCurrentInstance, onMounted } from 'vue'
@@ -37,8 +37,8 @@ import Lyrics from './views/lyrics.vue';
 const instance = getCurrentInstance();
 const route = useRoute();
 const indexStore = useIndexStore();
-const { fetchLikedPlaylist, fetchLikedSongs, fetchLikedSongsWithDetails, fetchCloudDisk, fetchLikedAlbums, fetchLikedArtists, fetchLikedMVs,player } = indexStore;
-const { showLyrics,  enableScrolling, useIsAccountLoggedIn,useIsLooseLoggedIn } = storeToRefs(indexStore);
+const { fetchLikedPlaylist, fetchLikedSongs, fetchLikedSongsWithDetails, fetchCloudDisk, fetchLikedAlbums, fetchLikedArtists, fetchLikedMVs, player } = indexStore;
+const { showLyrics, enableScrolling, useIsAccountLoggedIn, useIsLooseLoggedIn } = storeToRefs(indexStore);
 
 const isElectron = ref(process.env.IS_ELECTRON);
 const userSelectNone = ref(false);
