@@ -194,7 +194,8 @@ export const useIndexStore = defineStore('index', {
         * 开始计数
         */
         start() {
-            this.t = null;
+            if (this.t)
+                clearInterval(this.t)
             this.t = setInterval(() => {
                 this.progress++;
             }, 1000)

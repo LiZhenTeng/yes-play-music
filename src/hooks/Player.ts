@@ -519,6 +519,7 @@ export class Player {
     autoplay = true,
     ifUnplayableThen = UNPLAYABLE_CONDITION.PLAY_NEXT_TRACK
   ) {
+    clear()
     if (autoplay && this._currentTrack.name) {
       this._scrobble(this.currentTrack, this._howler?.seek());
     }
@@ -526,7 +527,7 @@ export class Player {
       const track = data.songs[0];
       this._currentTrack = track;
       this._updateMediaSessionMetaData(track);
-      clear()
+      
       return this._replaceCurrentTrackAudio(
         track,
         autoplay,

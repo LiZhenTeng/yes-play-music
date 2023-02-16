@@ -109,7 +109,6 @@ const router = useRouter();
 
 const hover = ref(false);
 const trackStyle = ref({});
-
 const track = computed(() => {
     return type === 'cloudDisk'
         ? trackProp?.simpleSong
@@ -185,7 +184,7 @@ const focus = computed(() => {
 })
 const trackClass = computed(() => {
     let trackClass = [type];
-    if (!playable.value && showUnavailableSongInGreyStyle.value)
+    if (!playable.value && !showUnavailableSongInGreyStyle.value)
         trackClass.push('disable');
     if (isPlaying.value && highlightPlayingTrack)
         trackClass.push('playing');
