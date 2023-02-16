@@ -11,7 +11,7 @@ export default defineConfig({
     createSvgIconsPlugin({
       iconDirs: [resolve(__dirname, './src/assets/icons')],
       symbolId: 'icon-[name]',
-      inject:'body-first'
+      inject: 'body-first'
     }),
     /* VitePWA({
       manifest: {
@@ -24,12 +24,13 @@ export default defineConfig({
       },
     }) */
   ],
-  build:{
-    
+  build: {
+
   },
   define: {
     process: {
       env: {
+        IS_ELECTRON: false,
         VUE_APP_NETEASE_API_URL: 'http://cloud-music.pl-fe.cn/',
         DEV_SERVER_PORT: 5173,
         VUE_APP_LASTFM_API_KEY: '09c55292403d961aa517ff7f5e8a3d9c',

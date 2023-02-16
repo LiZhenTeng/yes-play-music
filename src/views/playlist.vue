@@ -279,7 +279,6 @@ const isUserOwnPlaylist = computed(() => {
     );
 })
 const filteredTracks = computed(() => {
-    console.log(tracks)
     return tracks.value.filter(
         track =>
             (track.name &&
