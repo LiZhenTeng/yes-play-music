@@ -154,7 +154,6 @@ const closeMenu = () => {
 }
 
 const playThisList = (trackID: any) => {
-    console.log(dbclickTrackFunc)
     if (dbclickTrackFunc === 'default') {
         playThisListDefault(trackID);
     } else if (dbclickTrackFunc === 'none') {
@@ -175,7 +174,6 @@ const playThisList = (trackID: any) => {
     }
 }
 const playThisListDefault = (trackID: any) => {
-    console.log(type)
     if (type === 'playlist') {
         player.value.playPlaylistByID(id, trackID);
     } else if (type === 'album') {

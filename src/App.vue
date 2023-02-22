@@ -20,10 +20,9 @@
   </transition>
 </template>
 <script lang="ts" setup>
-import { ref, computed, getCurrentInstance, onMounted } from 'vue'
+import { ref, computed, getCurrentInstance, onMounted,provide } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
-import store from '@/store/store'
 import { useIndexStore } from '@/store'
 import ModalAddTrackToPlaylist from './components/ModalAddTrackToPlaylist.vue';
 import ModalNewPlaylist from './components/ModalNewPlaylist.vue';
@@ -42,7 +41,8 @@ const { showLyrics, enableScrolling, useIsAccountLoggedIn, useIsLooseLoggedIn } 
 
 const isElectron = ref(process.env.IS_ELECTRON);
 const userSelectNone = ref(false);
-const scrollbar = ref<any>(null)
+const scrollbar = ref();
+const main =ref();
 
 const showPlayer = computed(() => {
   return (
@@ -88,6 +88,7 @@ const handleScroll = () => {
 }
 
 onMounted(() => {
+  provide('main',main)
   if (isElectron) ipcRenderer(instance);
   window.addEventListener('keydown', handleKeydown);
   fetchData();

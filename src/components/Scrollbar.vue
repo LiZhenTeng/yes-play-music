@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, getCurrentInstance, defineEmits, onMounted } from 'vue';
+import { ref, reactive, computed, getCurrentInstance, defineEmits, onMounted,provide,defineExpose } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 
@@ -130,6 +130,8 @@ const restorePosition = () => {
     }
     main.value.scrollTo({ top: positions[route.name?.toString() as string].scrollTop });
 }
+provide('restorePosition',restorePosition);
+provide("handleScroll",handleScroll)
 
 onMounted(() => {
     router.beforeEach((to, from, next) => {
@@ -137,6 +139,10 @@ onMounted(() => {
         next();
     });
 
+})
+
+defineExpose({
+    handleScroll
 })
 
 </script>

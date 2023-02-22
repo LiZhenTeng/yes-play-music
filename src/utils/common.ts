@@ -4,6 +4,89 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
+export const useFormatAlbumType = (type: string, album: any) => {
+    if (!type) return '';
+    if (type === 'EP/Single') {
+        return album.size === 1 ? 'Single' : 'EP';
+    } else if (type === 'Single') {
+        return 'Single';
+    } else if (type === '专辑') {
+        return 'Album';
+    } else {
+        return type;
+    }
+}
+
+export const useSplitSoundtrackAlbumTitle = (title: string) => {
+    let keywords = [
+        'Music from the Original Motion Picture Score',
+        'The Original Motion Picture Soundtrack',
+        'Original MGM Motion Picture Soundtrack',
+        'Complete Original Motion Picture Score',
+        'Original Music From The Motion Picture',
+        'Music From The Disney+ Original Movie',
+        'Original Music From The Netflix Film',
+        'Original Score to the Motion Picture',
+        'Original Motion Picture Soundtrack',
+        'Soundtrack from the Motion Picture',
+        'Original Television Soundtrack',
+        'Original Motion Picture Score',
+        'Music From the Motion Picture',
+        'Music From The Motion Picture',
+        'Complete Motion Picture Score',
+        'Music from the Motion Picture',
+        'Original Videogame Soundtrack',
+        'La Bande Originale du Film',
+        'Music from the Miniseries',
+        'Bande Originale du Film',
+        'Die Original Filmmusik',
+        'Original Soundtrack',
+        'Complete Score',
+        'Original Score',
+    ];
+    for (let keyword of keywords) {
+        if (title.includes(keyword) === false) continue;
+        return {
+            title: title
+                .replace(`(${keyword})`, '')
+                .replace(`: ${keyword}`, '')
+                .replace(`[${keyword}]`, '')
+                .replace(`- ${keyword}`, '')
+                .replace(`${keyword}`, ''),
+            subtitle: keyword,
+        };
+    }
+    return {
+        title: title,
+        subtitle: '',
+    };
+}
+
+export const useSplitAlbumTitle = (title: string) => {
+    let keywords = [
+        'Bonus Tracks Edition',
+        'Complete Edition',
+        'Deluxe Edition',
+        'Deluxe Version',
+        'Tour Edition',
+    ];
+    for (let keyword of keywords) {
+        if (title.includes(keyword) === false) continue;
+        return {
+            title: title
+                .replace(`(${keyword})`, '')
+                .replace(`: ${keyword}`, '')
+                .replace(`[${keyword}]`, '')
+                .replace(`- ${keyword}`, '')
+                .replace(`${keyword}`, ''),
+            subtitle: keyword,
+        };
+    }
+    return {
+        title: title,
+        subtitle: '',
+    };
+}
 
 export const useRandomNum = (...arg: any[]) => {
     switch (arg.length) {
