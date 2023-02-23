@@ -823,9 +823,7 @@ export class Player {
   }
   play() {
     if (this._howler?.playing()) return;
-    start();
     this._howler?.play();
-
     this._howler?.once('play', () => {
       this._howler?.fade(0, this.volume, PLAY_PAUSE_FADE_DURATION);
 
@@ -843,7 +841,9 @@ export class Player {
           duration: ~~((this.currentTrack.dt as number) / 1000),
         });
       }
+      start();
     });
+    
   }
   playOrPause() {
     if (this._howler?.playing()) {
