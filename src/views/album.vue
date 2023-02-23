@@ -99,6 +99,7 @@
     </div>
 </template>
 <script lang="ts" setup>
+//#region hooks
 import { getArtistAlbum } from '@/api/artist';
 import { getTrackDetail } from '@/api/track';
 import { getAlbum, albumDynamicDetail, likeAAlbum } from '@/api/album';
@@ -111,7 +112,9 @@ import { ref, computed, onMounted } from 'vue';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 import useClipboard from 'vue-clipboard3'
+//#endregion
 
+//#region components
 import ExplicitSymbol from '@/components/ExplicitSymbol.vue';
 import ButtonTwoTone from '@/components/ButtonTwoTone.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
@@ -119,6 +122,7 @@ import TrackList from '@/components/TrackList.vue';
 import CoverRow from '@/components/CoverRow.vue';
 import Cover from '@/components/Cover.vue';
 import Modal from '@/components/Modal.vue';
+//#endregion
 
 const route = useRoute();
 const indexStore = useIndexStore();

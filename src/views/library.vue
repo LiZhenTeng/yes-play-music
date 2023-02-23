@@ -135,7 +135,8 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { ref, reactive, computed, onMounted, onActivated, getCurrentInstance } from 'vue';
+import { ref, reactive, computed, onMounted, onActivated, getCurrentInstance,inject } from 'vue';
+import type { Ref } from 'vue';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
@@ -151,6 +152,7 @@ import CoverRow from '@/components/CoverRow.vue';
 import SvgIcon from '@/components/SvgIcon.vue';
 import MvRow from '@/components/MvRow.vue';
 
+const main: Ref<HTMLElement> | undefined = inject('main')
 const router = useRouter();
 const { t } = locale.global;
 const instance = getCurrentInstance();
@@ -287,7 +289,7 @@ const updateCurrentTab = (tab: string) => {
         return;
     }
     currentTab.value = tab;
-    (instance?.parent?.refs.main as any).scrollTo({ top: 375, behavior: 'smooth' });
+    main?.value.scrollTo({ top: 375, behavior: 'smooth' });
 }
 const goToLikedSongsList = () => {
     router.push({ path: '/library/liked-songs' });

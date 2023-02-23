@@ -1,5 +1,7 @@
 declare module 'node-vibrant/dist/vibrant.worker.min.js';
 declare module 'dayjs';
+declare module 'plyr';
+declare module 'change-case';
 declare module "virtual:pwa-register/vue" {
     import { Ref } from "vue";
     type RegisterSWOptions = {

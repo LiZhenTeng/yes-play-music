@@ -93,7 +93,7 @@
             <CoverRow :type="'album'" :items="albums" :sub-text="'releaseYear'" :show-play-button="true" />
         </div>
         <div v-if="mvs.length !== 0" id="mvs" class="mvs">
-            <div class="section-title">MVs
+            <div class="section-title">MV
                 <router-link v-show="hasMoreMV" :to="`/artist/${artist.id}/mv`">{{
                     $t('home.seeMore')
                 }}</router-link>
@@ -129,6 +129,7 @@
 </template>
 
 <script lang="ts" setup>
+//#region hooks
 import {
     getArtist,
     getArtistAlbum,
@@ -138,7 +139,16 @@ import {
 } from '@/api/artist';
 import locale from '@/locale';
 import { start, done } from 'nprogress';
+import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
+import type { Ref } from 'vue'
+import { ref, computed, onActivated, inject } from 'vue';
+import { useIndexStore } from '@/store';
+import { storeToRefs } from 'pinia';
+import useClipboard from 'vue-clipboard3'
+import { useResizeImage, useFormatAlbumType, useFormatDate } from '@/utils/common'
+//#endregion
 
+//#region components
 import ButtonTwoTone from '@/components/ButtonTwoTone.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
 import TrackList from '@/components/TrackList.vue';
@@ -146,12 +156,7 @@ import CoverRow from '@/components/CoverRow.vue';
 import Cover from '@/components/Cover.vue';
 import MvRow from '@/components/MvRow.vue';
 import Modal from '@/components/Modal.vue';
-import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
-import { ref, computed, onActivated, inject } from 'vue';
-import { useIndexStore } from '@/store';
-import { storeToRefs } from 'pinia';
-import useClipboard from 'vue-clipboard3'
-import { useResizeImage, useFormatAlbumType, useFormatDate } from '@/utils/common'
+//#endregion
 
 const route = useRoute();
 const router = useRouter();
@@ -160,8 +165,8 @@ const { showToast } = indexStore;
 const { player, useIsAccountLoggedIn, enableScrolling } = storeToRefs(indexStore)
 const { toClipboard } = useClipboard();
 const restorePosition: any = inject('restorePosition')
-const main:any=inject('main')
-
+const main: Ref<HTMLElement> | undefined = inject('main')
+    
 const show = ref(false);
 const artist = ref<{ [k: string]: any }>({
     img1v1Url:
@@ -208,7 +213,7 @@ const loadData = async (id: number, next: undefined | Function = undefined) => {
         if (!show.value) start();
     }, 1000);
     show.value = false;
-    main.value.scrollTo({top: 0});
+    main?.value.scrollTo({ top: 0 });
     const { data } = await getArtist(id);
     artist.value = data.artist;
     popularTracks.value = data.hotSongs;
