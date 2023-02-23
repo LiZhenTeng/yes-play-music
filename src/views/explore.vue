@@ -32,7 +32,6 @@
                 @click.native="getPlaylist">{{ $t('explore.loadMore') }}</ButtonTwoTone>
         </div>
     </div>
-
 </template>
 <script lang="ts" setup>
 import { start, done } from 'nprogress';
@@ -42,16 +41,16 @@ import { useGetRecommendPlayList } from '@/hooks/playList';
 import ButtonTwoTone from '@/components/ButtonTwoTone.vue';
 import CoverRow from '@/components/CoverRow.vue';
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
-import { ref, reactive, computed, onMounted, onActivated, getCurrentInstance } from 'vue';
+import { ref, reactive, computed, inject, onActivated } from 'vue';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 
 const indexStore = useIndexStore();
 const { togglePlaylistCategory } = indexStore;
 const { settings } = storeToRefs(indexStore);
-const instance = getCurrentInstance();
 const route = useRoute();
 const router = useRouter();
+const restorePosition: Function | undefined = inject('restorePosition')
 
 const show = ref(false);
 const playlists = reactive(new Array());
@@ -142,7 +141,8 @@ const toggleCat = (name: any) => {
 
 onActivated(() => {
     loadData();
-    (instance?.parent?.refs?.scrollbar as any)?.restorePosition();
+    if (restorePosition)
+        restorePosition();
 })
 
 

@@ -51,8 +51,7 @@
                     <div class="tab" :class="{ active: currentTab === 'mvs' }" @click="updateCurrentTab('mvs')">
                         {{ $t('library.mvs') }}
                     </div>
-                    <div class="tab" :class="{ active: currentTab === 'cloudDisk' }"
-                        @click="updateCurrentTab('cloudDisk')">
+                    <div class="tab" :class="{ active: currentTab === 'cloudDisk' }" @click="updateCurrentTab('cloudDisk')">
                         {{ $t('library.cloudDisk') }}
                     </div>
                     <div class="tab" :class="{ active: currentTab === 'playHistory' }"
@@ -135,7 +134,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { ref, reactive, computed, onMounted, onActivated, getCurrentInstance,inject } from 'vue';
+import { ref, reactive, computed, onMounted, onActivated, inject } from 'vue';
 import type { Ref } from 'vue';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
@@ -153,9 +152,9 @@ import SvgIcon from '@/components/SvgIcon.vue';
 import MvRow from '@/components/MvRow.vue';
 
 const main: Ref<HTMLElement> | undefined = inject('main')
+const restorePosition: Function | undefined = inject('restorePosition')
 const router = useRouter();
 const { t } = locale.global;
-const instance = getCurrentInstance();
 const indexStore = useIndexStore();
 const {
     showToast,
@@ -353,7 +352,8 @@ onMounted(() => {
 })
 
 onActivated(() => {
-    (instance?.parent?.refs.scrollbar as any)?.restorePosition();
+    if (restorePosition)
+        restorePosition();
     loadData();
     useDailyTask();
 })

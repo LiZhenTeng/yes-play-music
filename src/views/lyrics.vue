@@ -27,8 +27,8 @@
                         <div class="top-part">
                             <div class="track-info">
                                 <div class="title" :title="currentTrack.name">
-                                    <router-link v-if="hasList()" :to="`${getListPath()}`"
-                                        @click.native="toggleLyrics">{{ currentTrack.name }}
+                                    <router-link v-if="hasList()" :to="`${getListPath()}`" @click.native="toggleLyrics">{{
+                                        currentTrack.name }}
                                     </router-link>
                                     <span v-else>
                                         {{ currentTrack.name }}
@@ -58,8 +58,7 @@
                                     </button-icon>
                                     <div class="volume-bar">
                                         <vue-slider v-model="volume" :min="0" :max="1" :interval="0.01"
-                                            :drag-on-click="true" :duration="0" tooltip="none"
-                                            :dot-size="12"></vue-slider>
+                                            :drag-on-click="true" :duration="0" tooltip="none" :dot-size="12"></vue-slider>
                                     </div>
                                 </div>
                                 <div class="buttons">
@@ -81,8 +80,8 @@
                         <div class="progress-bar">
                             <span>{{ formatTrackTime(progress) || '0:00' }}</span>
                             <div class="slider">
-                                <vue-slider v-model="progress" :min="0" :max="player.currentTrackDuration"
-                                    :interval="1" :drag-on-click="true" :duration="0" :dot-size="12" :height="2"
+                                <vue-slider v-model="progress" :min="0" :max="player.currentTrackDuration" :interval="1"
+                                    :drag-on-click="true" :duration="0" :dot-size="12" :height="2"
                                     :tooltip-formatter="formatTrackTime" :lazy="true" :silent="true"></vue-slider>
                             </div>
                             <span>{{ formatTrackTime(player.currentTrackDuration) }}</span>
@@ -124,8 +123,8 @@
                 <transition name="slide-fade">
                     <div v-show="!noLyric" ref="lyricsContainer" class="lyrics-container" :style="lyricFontSize">
                         <div id="line-1" class="line"></div>
-                        <div v-for="(line, index) in lyricWithTranslation" :id="`line${index}`" :key="index"
-                            class="line" :class="{
+                        <div v-for="(line, index) in lyricWithTranslation" :id="`line${index}`" :key="index" class="line"
+                            :class="{
                                 highlight: highlightLyricIndex === index,
                             }" @click="clickLyricLine(line.time)" @dblclick="clickLyricLine(line.time, true)">
                             <div class="content">
@@ -147,7 +146,6 @@
             </div>
         </div>
     </transition>
-
 </template>
 <script lang="ts" setup>
 import { useFormatTrackTime } from '@/utils/common';
@@ -165,7 +163,7 @@ import { storeToRefs } from 'pinia';
 const { t } = locale.global;
 const indexStore = useIndexStore();
 const { toggleLyrics, likeATrack, updateModal, showToast, fetchLikedPlaylist } = indexStore;
-const { player, settings, showLyrics, enableScrolling, useIsAccountLoggedIn,progress } = storeToRefs(indexStore);
+const { player, settings, showLyrics, enableScrolling, useIsAccountLoggedIn, progress } = storeToRefs(indexStore);
 
 const lyricsInterval = ref<NodeJS.Timer | null>(null);
 const lyric = reactive<Array<any>>([]);
@@ -299,44 +297,43 @@ const playNextTrack = () => {
         player.value?.playNextTrack();
     }
 }
-const getLyricVoid = () => {
+const getLyricVoid = async () => {
     if (!currentTrack.value?.id) return;
-    return getLyric(currentTrack.value?.id).then((data: any) => {
-        if (!data?.lrc?.lyric) {
+    const { data } = await getLyric(currentTrack.value?.id)
+    if (!data?.lrc?.lyric) {
+        lyric.length = 0;
+        tlyric.length = 0;
+        return false;
+    } else {
+        const lyricParserData = lyricParser(data);
+        lyricParserData.lyric = lyricParserData.lyric.filter(
+            l => !/^作(词|曲)\s*(:|：)\s*无$/.exec(l.content)
+        );
+        let includeAM =
+            lyricParserData.lyric.length <= 10 &&
+            lyricParserData.lyric.map(l => l.content).includes('纯音乐，请欣赏');
+        if (includeAM) {
+            let reg = /^作(词|曲)\s*(:|：)\s*/;
+            let author = currentTrack.value?.ar[0]?.name;
+            lyricParserData.lyric = lyric.filter(l => {
+                let regExpArr = l.content.match(reg);
+                return (
+                    !regExpArr || l.content.replace(regExpArr[0], '') !== author
+                );
+            });
+        }
+        if (lyricParserData.lyric.length === 1 && includeAM) {
             lyric.length = 0;
             tlyric.length = 0;
             return false;
         } else {
-            const lyricParserData = lyricParser(data);
-            lyricParserData.lyric = lyricParserData.lyric.filter(
-                l => !/^作(词|曲)\s*(:|：)\s*无$/.exec(l.content)
-            );
-            let includeAM =
-                lyricParserData.lyric.length <= 10 &&
-                lyricParserData.lyric.map(l => l.content).includes('纯音乐，请欣赏');
-            if (includeAM) {
-                let reg = /^作(词|曲)\s*(:|：)\s*/;
-                let author = currentTrack.value?.ar[0]?.name;
-                lyricParserData.lyric = lyric.filter(l => {
-                    let regExpArr = l.content.match(reg);
-                    return (
-                        !regExpArr || l.content.replace(regExpArr[0], '') !== author
-                    );
-                });
-            }
-            if (lyricParserData.lyric.length === 1 && includeAM) {
-                lyric.length = 0;
-                tlyric.length = 0;
-                return false;
-            } else {
-                lyric.length = 0;
-                tlyric.length = 0;
-                lyric.push(...lyricParserData.lyric);
-                tlyric.push(...lyricParserData.tlyric);
-                return true;
-            }
+            lyric.length = 0;
+            tlyric.length = 0;
+            lyric.push(...lyricParserData.lyric);
+            tlyric.push(...lyricParserData.tlyric);
+            return true;
         }
-    });
+    }
 }
 const formatTrackTime = (value: number) => {
     return useFormatTrackTime(value);
@@ -407,8 +404,8 @@ const mute = () => {
     player.value?.mute();
 }
 
-watch(currentTrack, () => {
-    getLyricVoid();
+watch(currentTrack, async () => {
+    await getLyricVoid();
     getCoverColor();
 })
 
@@ -423,8 +420,8 @@ watch(showLyrics, (show) => {
     }
 })
 
-onMounted(() => {
-    getLyricVoid();
+onMounted(async () => {
+    await getLyricVoid();
     getCoverColor();
     initDate();
 })

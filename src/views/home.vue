@@ -41,7 +41,6 @@
             <CoverRow type="playlist" :items="topList.items" sub-text="updateFrequency" :image-size="1024" />
         </div>
     </div>
-
 </template>
 <script lang="ts" setup>
 import { getToplists } from '@/api/playlist';
@@ -53,15 +52,15 @@ import NProgress from 'nprogress';
 import CoverRow from '@/components/CoverRow.vue';
 import FMCard from '@/components/FMCard.vue';
 import DailyTracksCard from '@/components/DailyTracksCard.vue';
-import { ref, reactive, computed, onActivated, getCurrentInstance } from 'vue';
+import { ref, reactive, computed, onActivated, inject } from 'vue';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
 
 const indexStore = useIndexStore();
 const { settings } = storeToRefs(indexStore);
-const instance = getCurrentInstance();
+const restorePosition: Function | undefined = inject('restorePosition');
 
-const dailyTracksCard=ref<any>(null);
+const dailyTracksCard = ref<any>(null);
 const show = ref(false);
 const recommendPlaylist = reactive({ items: new Array() });
 const newReleasesAlbum = reactive({ items: new Array() });
@@ -90,7 +89,7 @@ const loadData = () => {
     getNewAlbums({
         area: settings.value.musicLanguage ?? 'ALL',
         limit: 10,
-    }).then(({data}) => {
+    }).then(({ data }) => {
         newReleasesAlbum.items = data?.albums;
     });
 
@@ -103,7 +102,7 @@ const loadData = () => {
     };
     getToplistOfArtists(
         toplistOfArtistsAreaTable[settings.value?.musicLanguage ?? 'all']
-    ).then(({data}) => {
+    ).then(({ data }) => {
         let indexs = new Array();
         while (indexs.length < 6) {
             let tmp = ~~(Math.random() * 100);
@@ -114,7 +113,7 @@ const loadData = () => {
             indexs.includes(index)
         );
     });
-    getToplists().then(({data}) => {
+    getToplists().then(({ data }) => {
         topList.items = data.list.filter((l: { id: any; }) =>
             topList.ids.includes(l.id)
         );
@@ -123,7 +122,8 @@ const loadData = () => {
 }
 onActivated(() => {
     loadData();
-    (instance?.parent?.refs?.scrollbar as any)?.restorePosition();
+    if (restorePosition)
+        restorePosition();
 })
 </script>
 <style lang="scss" scoped>

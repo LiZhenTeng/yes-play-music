@@ -164,9 +164,9 @@ const indexStore = useIndexStore();
 const { showToast } = indexStore;
 const { player, useIsAccountLoggedIn, enableScrolling } = storeToRefs(indexStore)
 const { toClipboard } = useClipboard();
-const restorePosition: any = inject('restorePosition')
+const restorePosition: Function | undefined = inject('restorePosition')
 const main: Ref<HTMLElement> | undefined = inject('main')
-    
+
 const show = ref(false);
 const artist = ref<{ [k: string]: any }>({
     img1v1Url:
@@ -299,7 +299,8 @@ onActivated(() => {
     if (artist.value?.id?.toString() !== route.params.id) {
         loadData(Number(route.params.id));
     } else {
-        restorePosition();
+        if (restorePosition)
+            restorePosition();
     }
 })
 
