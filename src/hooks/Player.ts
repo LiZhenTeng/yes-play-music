@@ -13,8 +13,8 @@ import { decode as base642Buffer } from '@/utils/base64';
 import { storeToRefs } from 'pinia';
 
 const indexStore = useIndexStore();
-const { showToast, stop, start, clear } = indexStore;
-const { useIsAccountLoggedIn, title, liked, lastfm, settings } = storeToRefs(indexStore);
+const { showToast } = indexStore;
+const { useIsAccountLoggedIn, title, liked, lastfm, settings,progress } = storeToRefs(indexStore);
 
 const PLAY_PAUSE_FADE_DURATION = 200;
 
@@ -62,7 +62,7 @@ function setTrayLikeState(isLiked: any) {
 export class Player {
   private _playing: boolean;
   private _enabled: boolean;
-  private _progress: number;
+  public _progress: number;
   private _repeatMode: string;
   private _shuffle: boolean;
   private _reversed: boolean;
@@ -280,6 +280,7 @@ export class Player {
     setInterval(() => {
       if (this._howler === null) return;
       this._progress = this._howler.seek();
+      progress.value=this._progress;
       localStorage.setItem('playerCurrentTrackTime', this._progress.toString());
       if (isCreateMpris) {
         ipcRenderer?.send('playerCurrentTrackTime', this._progress);
@@ -519,7 +520,7 @@ export class Player {
     autoplay = true,
     ifUnplayableThen = UNPLAYABLE_CONDITION.PLAY_NEXT_TRACK
   ) {
-    clear()
+    //clear()
     if (autoplay && this._currentTrack.name) {
       this._scrobble(this.currentTrack, this._howler?.seek());
     }
@@ -811,7 +812,7 @@ export class Player {
   }
 
   pause() {
-    stop();
+    //stop();
     this._howler?.fade(this.volume, 0, PLAY_PAUSE_FADE_DURATION);
 
     this._howler?.once('fade', () => {
@@ -841,7 +842,7 @@ export class Player {
           duration: ~~((this.currentTrack.dt as number) / 1000),
         });
       }
-      start();
+      //start();
     });
 
   }

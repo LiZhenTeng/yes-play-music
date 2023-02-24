@@ -22,8 +22,7 @@ interface State {
     showLyrics: boolean
     enableScrolling: boolean
     player: { [x: string]: any }
-    progress: number
-    t: NodeJS.Timeout | null
+    progress:number
     lastfm: any
     settings: {
         lang: any,
@@ -104,8 +103,7 @@ export const useIndexStore = defineStore('index', {
         showLyrics: false,
         enableScrolling: true,
         player: {},
-        progress: 0,
-        t: null,
+        progress:0,
         settings: {
             lang: null,
             musicLanguage: 'all',
@@ -191,31 +189,6 @@ export const useIndexStore = defineStore('index', {
         }
     },
     actions: {
-        /**
-        * 开始计数
-        */
-        start() {
-            if (this.t)
-                clearInterval(this.t)
-            this.t = setInterval(() => {
-                this.progress++;
-            }, 1000)
-        },
-        /**
-         * 清除计时器，计时数
-         */
-        clear() {
-            if (this.t)
-                clearInterval(this.t)
-            this.progress = 0;
-        },
-        /**
-         * 停止计时器
-         */
-        stop() {
-            if (this.t)
-                clearInterval(this.t)
-        },
         fetchUserProfile() {
             if (!this.useIsAccountLoggedIn) return;
             return userAccount().then(({ data }) => {

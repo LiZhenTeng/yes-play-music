@@ -4,9 +4,9 @@
             nyancat: settings.nyancatStyle,
             'nyancat-stop': settings.nyancatStyle && !player.playing,
         }" @click.stop>
-            <vue-slider v-model="progress" :min="0" :max="player.currentTrackDuration" :step="1"
-                :drag-on-click="true" :duration="0" :dot-size="12" :height="2" :tooltip-formatter="formatTrackTime"
-                :lazy="true" :silent="true"></vue-slider>
+            <vue-slider v-model="progress" :min="0" :max="player.currentTrackDuration" :step="1" :drag-on-click="true"
+                :duration="0" :dot-size="12" :height="2" :tooltip-formatter="formatTrackTime" :lazy="true"
+                :silent="true"></vue-slider>
         </div>
         <div class="controls">
             <div class="playing">
@@ -18,8 +18,7 @@
                             {{ currentTrack.name }}
                         </div>
                         <div class="artist">
-                            <span v-for="(ar, index) in currentTrack.ar" :key="ar.id"
-                                @click="ar.id && goToArtist(ar.id)">
+                            <span v-for="(ar, index) in currentTrack.ar" :key="ar.id" @click="ar.id && goToArtist(ar.id)">
                                 <span :class="{ ar: ar.id }"> {{ ar.name }} </span><span
                                     v-if="index !== currentTrack.ar.length - 1">, </span>
                             </span>
@@ -75,9 +74,8 @@
                         :title="$t('player.shuffle')" @click.native="switchShuffle"><svg-icon
                             icon-class="shuffle" /></button-icon>
                     <button-icon v-if="settings.enableReversedMode"
-                        :class="{ active: player.reversed, disabled: player.isPersonalFM }"
-                        :title="$t('player.reversed')" @click.native="switchReversed"><svg-icon
-                            icon-class="sort-up" /></button-icon>
+                        :class="{ active: player.reversed, disabled: player.isPersonalFM }" :title="$t('player.reversed')"
+                        @click.native="switchReversed"><svg-icon icon-class="sort-up" /></button-icon>
                     <div class="volume-control">
                         <button-icon :title="$t('player.mute')" @click.native="mute">
                             <svg-icon v-show="volume > 0.5" icon-class="volume" />
@@ -102,7 +100,7 @@ import ButtonIcon from '@/components/ButtonIcon.vue';
 import { useGoToListSource, useHasListSource } from '@/hooks/playList';
 import { useIndexStore } from '@/store';
 import { storeToRefs } from 'pinia';
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import '@/assets/css/slider.css';
 import { useResizeImage } from '@/utils/common'
@@ -110,7 +108,7 @@ import { useResizeImage } from '@/utils/common'
 const route = useRoute();
 const router = useRouter();
 const indexStore = useIndexStore();
-const { toggleLyrics, showToast, likeATrack } = indexStore;
+const { toggleLyrics, likeATrack } = indexStore;
 const { player, settings, progress } = storeToRefs(indexStore);
 
 const currentTrack = computed(() => {

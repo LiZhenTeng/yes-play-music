@@ -78,10 +78,10 @@
                             </div>
                         </div>
                         <div class="progress-bar">
-                            <span>{{ formatTrackTime(progress) || '0:00' }}</span>
+                            <span>{{ formatTrackTime(player.progress) || '0:00' }}</span>
                             <div class="slider">
-                                <vue-slider v-model="progress" :min="0" :max="player.currentTrackDuration" :interval="1"
-                                    :drag-on-click="true" :duration="0" :dot-size="12" :height="2"
+                                <vue-slider v-model="progress" :min="0" :max="player.currentTrackDuration"
+                                    :interval="1" :drag-on-click="true" :duration="0" :dot-size="12" :height="2"
                                     :tooltip-formatter="formatTrackTime" :lazy="true" :silent="true"></vue-slider>
                             </div>
                             <span>{{ formatTrackTime(player.currentTrackDuration) }}</span>
@@ -163,7 +163,7 @@ import { storeToRefs } from 'pinia';
 const { t } = locale.global;
 const indexStore = useIndexStore();
 const { toggleLyrics, likeATrack, updateModal, showToast, fetchLikedPlaylist } = indexStore;
-const { player, settings, showLyrics, enableScrolling, useIsAccountLoggedIn, progress } = storeToRefs(indexStore);
+const { player, settings, showLyrics, enableScrolling, useIsAccountLoggedIn,progress } = storeToRefs(indexStore);
 
 const lyricsInterval = ref<NodeJS.Timer | null>(null);
 const lyric = reactive<Array<any>>([]);
