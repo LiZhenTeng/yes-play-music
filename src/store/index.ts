@@ -184,9 +184,10 @@ export const useIndexStore = defineStore('index', {
             // 用户名搜索（用户数据为只读）
             return state.data.value?.loginMode === 'username';
         },
-        useIsLooseLoggedIn() {
+        useIsLooseLoggedIn: (state) => {
             // 账户登录或者用户名搜索都判断为登录，宽松检查
-            return this.useIsAccountLoggedIn || this.useIsUsernameLoggedIn;
+            return (useGetCookie('MUSIC_U') !== undefined &&
+                state.data?.value?.loginMode === 'account') || state.data.value?.loginMode === 'username';
         }
     },
     actions: {
@@ -219,7 +220,7 @@ export const useIndexStore = defineStore('index', {
             if (!this.useIsAccountLoggedIn) return;
             return userAccount().then(({ data }) => {
                 if (data.code === 200) {
-                    this.updateData({ key: 'user', value: data.profile });
+                    this.data.user = data.profile
                 }
             });
         },
@@ -272,10 +273,7 @@ export const useIndexStore = defineStore('index', {
                             data: data.playlist,
                         });
                         // 更新用户”喜欢的歌曲“歌单ID
-                        this.updateData({
-                            key: 'likedSongPlaylistID',
-                            value: data.playlist[0].id,
-                        });
+                        this.data.likedSongPlaylistID = data.playlist[0].id;
                     }
                 });
             } else {

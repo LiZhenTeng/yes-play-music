@@ -13,8 +13,8 @@ import { decode as base642Buffer } from '@/utils/base64';
 import { storeToRefs } from 'pinia';
 
 const indexStore = useIndexStore();
-const { showToast,stop,start,clear } = indexStore;
-const { useIsAccountLoggedIn, title, liked, lastfm, settings, progress, t } = storeToRefs(indexStore);
+const { showToast, stop, start, clear } = indexStore;
+const { useIsAccountLoggedIn, title, liked, lastfm, settings } = storeToRefs(indexStore);
 
 const PLAY_PAUSE_FADE_DURATION = 200;
 
@@ -527,7 +527,7 @@ export class Player {
       const track = data.songs[0];
       this._currentTrack = track;
       this._updateMediaSessionMetaData(track);
-      
+
       return this._replaceCurrentTrackAudio(
         track,
         autoplay,
@@ -843,7 +843,7 @@ export class Player {
       }
       start();
     });
-    
+
   }
   playOrPause() {
     if (this._howler?.playing()) {

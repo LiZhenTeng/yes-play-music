@@ -325,7 +325,7 @@ const openPlayModeTabMenu = (e: any) => {
     playModeTabMenu.value.openMenu(e);
 }
 const changePlaylistFilter = (type: any) => {
-    updateData({ key: 'libraryPlaylistFilter', value: type });
+    data.value.libraryPlaylistFilter = type;
     window.scrollTo({ top: 375, behavior: 'smooth' });
 }
 const selectUploadFiles = () => {

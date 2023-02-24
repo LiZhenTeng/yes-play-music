@@ -14,8 +14,8 @@
                                 inputFocus === 'phone' ? '' : $t('login.countryCode')
                             " @focus="inputFocus = 'phone'" @blur="inputFocus = ''" @keyup.enter="login" />
                             <input id="phoneNumber" v-model="phoneNumber"
-                                :placeholder="inputFocus === 'phone' ? '' : $t('login.phone')"
-                                @focus="inputFocus = 'phone'" @blur="inputFocus = ''" @keyup.enter="login" />
+                                :placeholder="inputFocus === 'phone' ? '' : $t('login.phone')" @focus="inputFocus = 'phone'"
+                                @blur="inputFocus = ''" @keyup.enter="login" />
                         </div>
                     </div>
                 </div>
@@ -25,8 +25,8 @@
                         <svg-icon icon-class="mail" />
                         <div class="inputs">
                             <input id="email" v-model="email" type="email"
-                                :placeholder="inputFocus === 'email' ? '' : $t('login.email')"
-                                @focus="inputFocus = 'email'" @blur="inputFocus = ''" @keyup.enter="login" />
+                                :placeholder="inputFocus === 'email' ? '' : $t('login.email')" @focus="inputFocus = 'email'"
+                                @blur="inputFocus = ''" @keyup.enter="login" />
                         </div>
                     </div>
                 </div>
@@ -81,7 +81,7 @@
 <script lang="ts" setup>
 import QRCode from 'qrcode';
 import md5 from 'md5';
-import NProgress from 'nprogress';
+import { done } from 'nprogress';
 import { useSetCookies } from '@/utils/common';
 import { nativeAlert } from '@/utils/nativeAlert';
 import {
@@ -93,11 +93,13 @@ import {
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useIndexStore } from '@/store';
+import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 const router = useRouter();
 const indexStore = useIndexStore();
 const { updateData, fetchUserProfile, fetchLikedPlaylist } = indexStore;
+const { data } = storeToRefs(indexStore);
 
 const processing = ref(false);
 const mode = ref('qrCode');
@@ -140,59 +142,65 @@ const validateEmail = () => {
     }
     return true;
 }
-const login = () => {
+const login = async () => {
     if (mode.value === 'phone') {
         processing.value = validatePhone();
         if (!processing.value) return;
-        loginWithPhone({
-            countrycode: countryCode.value.replace('+', '').replace(/\s/g, ''),
-            phone: phoneNumber.value.replace(/\s/g, ''),
-            password: 'fakePassword',
-            md5_password: md5(password.value).toString(),
-        })
-            .then(handleLoginResponse)
-            .catch(error => {
-                processing.value = false;
-                nativeAlert(`发生错误，请检查你的账号密码是否正确\n${error}`);
-            });
+        try {
+            const { data } = await loginWithPhone({
+                countrycode: countryCode.value.replace('+', '').replace(/\s/g, ''),
+                phone: phoneNumber.value.replace(/\s/g, ''),
+                password: 'fakePassword',
+                md5_password: md5(password.value).toString(),
+            })
+            await handleLoginResponse(data)
+        } catch (error) {
+            processing.value = false;
+            nativeAlert(`发生错误，请检查你的账号密码是否正确\n${error}`);
+        }
     } else {
         processing.value = validateEmail();
         if (!processing.value) return;
-        loginWithEmail({
-            email: email.value.replace(/\s/g, ''),
-            password: 'fakePassword',
-            md5_password: md5(password.value).toString(),
-        })
-            .then(handleLoginResponse)
-            .catch(error => {
-                processing.value = false;
-                nativeAlert(`发生错误，请检查你的账号密码是否正确\n${error}`);
-            });
+        try {
+            const { data } = await loginWithEmail({
+                email: email.value.replace(/\s/g, ''),
+                password: 'fakePassword',
+                md5_password: md5(password.value).toString(),
+            })
+            await handleLoginResponse(data)
+        } catch (error) {
+            processing.value = false;
+            nativeAlert(`发生错误，请检查你的账号密码是否正确\n${error}`);
+        }
     }
 }
-const handleLoginResponse = ({ data }: { data: any }) => {
-    if (!data) {
+const handleLoginResponse = async (d: any) => {
+    if (!d) {
         processing.value = false;
         return;
     }
-    if (data.code === 200) {
-        useSetCookies(data.cookie);
-        updateData({ key: 'loginMode', value: 'account' });
-        fetchUserProfile()?.then(() => {
-            fetchLikedPlaylist()?.then(() => {
-                router.push({ path: '/library' });
-            });
-        });
+    if (d.code === 200) {
+        useSetCookies(d.cookie);
+        data.value.loginMode = 'account';
+        console.log(data.value)
+        try {
+            await fetchUserProfile()
+            await fetchLikedPlaylist()
+            router.push({ path: '/library' });
+        } catch (error) {
+            console.log(error)
+        }
     } else {
         processing.value = false;
-        nativeAlert(data.msg ?? data.message ?? '账号或密码错误，请检查');
+        nativeAlert(d.msg ?? d.message ?? '账号或密码错误，请检查');
     }
 }
-const getQrCodeKey = () => {
-    return loginQrCodeKey().then(({ data }) => {
-        if (data.code === 200) {
-            qrCodeKey.value = data.data.unikey;
-            QRCode.toString(
+const getQrCodeKey = async () => {
+    const { data } = await loginQrCodeKey()
+    if (data.code === 200) {
+        qrCodeKey.value = data.data.unikey;
+        try {
+            const svg = await QRCode.toString(
                 `https://music.163.com/login?codekey=${qrCodeKey.value}`,
                 {
                     width: 192,
@@ -204,41 +212,37 @@ const getQrCodeKey = () => {
                     type: 'svg',
                 }
             )
-                .then(svg => {
-                    qrCodeSvg.value = `data:image/svg+xml;utf8,${encodeURIComponent(
-                        svg
-                    )}`;
-                })
-                .catch(err => {
-                    console.error(err);
-                })
-                .finally(() => {
-                    NProgress.done();
-                });
+            qrCodeSvg.value = `data:image/svg+xml;utf8,${encodeURIComponent(
+                svg
+            )}`;
+        } catch (error) {
+            console.error(error);
         }
-        checkQrCodeLogin();
-    });
+        finally {
+            done();
+        }
+    }
+    checkQrCodeLogin();
 }
 const checkQrCodeLogin = () => {
-    qrCodeCheckInterval.value = setInterval(() => {
+    qrCodeCheckInterval.value = setInterval(async () => {
         if (qrCodeKey.value === '') return;
-        loginQrCodeCheck(qrCodeKey.value).then(({ data }) => {
-            if (data.code === 800) {
-                getQrCodeKey(); // 重新生成QrCode
-                qrCodeInformation.value = '二维码已失效，请重新扫码';
-            } else if (data.code === 802) {
-                qrCodeInformation.value = '扫描成功，请在手机上确认登录';
-            } else if (data.code === 801) {
-                qrCodeInformation.value = '打开网易云音乐APP扫码登录';
-            } else if (data.code === 803) {
-                if (qrCodeCheckInterval.value)
-                    clearInterval(qrCodeCheckInterval.value);
-                qrCodeInformation.value = '登录成功，请稍等...';
-                data.code = 200;
-                data.cookie = data.cookie.replace('HTTPOnly', '');
-                handleLoginResponse({ data });
-            }
-        });
+        const { data } = await loginQrCodeCheck(qrCodeKey.value)
+        if (data.code === 800) {
+            getQrCodeKey(); // 重新生成QrCode
+            qrCodeInformation.value = '二维码已失效，请重新扫码';
+        } else if (data.code === 802) {
+            qrCodeInformation.value = '扫描成功，请在手机上确认登录';
+        } else if (data.code === 801) {
+            qrCodeInformation.value = '打开网易云音乐APP扫码登录';
+        } else if (data.code === 803) {
+            if (qrCodeCheckInterval.value)
+                clearInterval(qrCodeCheckInterval.value);
+            qrCodeInformation.value = '登录成功，请稍等...';
+            data.code = 200;
+            data.cookie = data.cookie.replace('HTTPOnly', '');
+            await handleLoginResponse(data);
+        }
     }, 1000);
 }
 const changeMode = (m: string) => {

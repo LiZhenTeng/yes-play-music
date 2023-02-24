@@ -71,7 +71,7 @@ const router = useRouter();
 const indexStore = useIndexStore();
 const { settings, data, useIsLooseLoggedIn } = storeToRefs(indexStore);
 
-const userProfileMenu = ref<any>(null);
+const userProfileMenu = ref();
 const inputFocus = ref(false)
 const langs = reactive(['zh-CN', 'zh-TW', 'en', 'tr']);
 const keywords = ref('');
@@ -107,7 +107,7 @@ const doSearch = () => {
     });
 }
 const showUserProfileMenu = (e: any) => {
-    userProfileMenu.openMenu(e);
+    userProfileMenu.value.openMenu(e);
 }
 const logout = () => {
     if (!confirm('确定要退出登录吗？')) return;

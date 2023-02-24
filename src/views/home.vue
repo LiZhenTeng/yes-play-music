@@ -59,7 +59,6 @@ import { storeToRefs } from 'pinia';
 const indexStore = useIndexStore();
 const { settings } = storeToRefs(indexStore);
 const restorePosition: Function | undefined = inject('restorePosition');
-
 const dailyTracksCard = ref<any>(null);
 const show = ref(false);
 const recommendPlaylist = reactive({ items: new Array() });
