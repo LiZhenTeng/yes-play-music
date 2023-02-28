@@ -169,7 +169,7 @@ const isPlaying = computed(() => {
     return player.value.currentTrack.id === track.value?.id;
 })
 const showUnavailableSongInGreyStyle = computed(() => {
-    return process.env.IS_ELECTRON
+    return true
         ? !settings.value.enableUnblockNeteaseMusic
         : true;
 })
@@ -184,7 +184,7 @@ const focus = computed(() => {
 })
 const trackClass = computed(() => {
     let trackClass = [type];
-    if (!playable.value && !showUnavailableSongInGreyStyle.value)
+    if (!playable.value && showUnavailableSongInGreyStyle.value)
         trackClass.push('disable');
     if (isPlaying.value && highlightPlayingTrack)
         trackClass.push('playing');
